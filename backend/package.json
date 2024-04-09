@@ -1,6 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "engines": {
+    "node": "^18.14.2",
+    "npm": "^9.8.1"
+  },
   "description": "Backend",
   "main": "server.js",
   "scripts": {
