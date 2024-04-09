@@ -1,0 +1,387 @@
+/* side bar css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+*{
+  margin: 0;
+  padding: 0;
+}
+body{
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  background-color: rgb(161, 87, 230);
+  font-style: normal;
+
+}
+.sidebar {
+    width: 14vw;
+    height: 100vh;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: black;
+    color: #ffffff;
+  }
+  
+  .sidebar-header {
+  padding: 20px 0;
+    width: 100%;
+    border-top-right-radius: 10px;
+ 
+    text-align: center;
+  }
+  
+  .side_head {
+    padding-bottom: 5px;
+  position: relative;
+}
+
+.side_head::after {
+  content: ' ';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3.2px;
+  background-color: rgb(161, 87, 230);
+  
+}
+  
+  .sidebar-menu {
+
+    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 150px;
+  }
+  
+  
+.side_link a{
+  position: absolute;
+  left: 1%;
+  transition: 0.4s;
+  text-align: center;
+  text-decoration:  none;
+  color: #ffffff;
+  border-radius: 10px;
+  width: 10vw;
+  padding: 20px;
+  letter-spacing: 1.2px;
+ 
+}
+
+.side_link:hover a{
+  background-color: #b195fb;
+  color: black;
+  font-weight: 500;
+
+
+}
+ 
+
+.task_board h1{
+  margin: 30px;
+}
+.task_board{
+  
+   border-radius: 30px;
+   color: rgb(161, 87, 230);
+   width: 100vw;
+   position: absolute;
+   /* padding: 40px; */
+    overflow: hidden;
+   top: 8%;
+   height:auto;
+   background-color: black;
+   align-items: center;
+}
+.home{
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+.add_task button{
+  border: none;
+  border-radius: 10px;
+  width: 150px;
+  padding:15px;
+  letter-spacing: 1px;
+  font-weight: bold;
+ cursor: pointer;
+  background-color:#b195fb;
+  position: absolute;
+  right: 2%;
+  top: 2%;
+ 
+}
+
+.logout_btn button{
+  border: none;
+  border-radius: 10px;
+  width: 150px;
+  padding:15px;
+ 
+  letter-spacing: 1px;
+  font-weight: bold;
+  position: absolute;
+  right: 15%;
+  top: 2%;
+  cursor: pointer;
+  background-color:#b195fb;
+ 
+}
+.logout_btn button:hover{
+  background-color: #9b82e0;
+}
+.add_task button:hover{
+  background-color: #9b82e0;
+}
+.welcome{
+  top: 1%;
+  right: 7%;
+  font-weight: bold;
+ letter-spacing: 1px;
+  
+  z-index: 1000;
+  position: absolute;
+}
+.modal_overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* semi-transparent black overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; /* Ensure modal appears above other content */
+}
+
+.modal_content {
+  background-color: #b195fb;
+  width: 50vw;
+  max-width: 600px; /* Limit maximum width of modal */
+ 
+  text-align: center;
+  color: black;
+  border-radius: 5px; /* Add border-radius to create rounded corners */
+  box-shadow: 0px 10px 50px rgba(0, 0, 0, 0.5); /* Adjust shadow */
+}
+
+.input_flex {
+  display: flex;
+  width: 100%;
+justify-content: space-evenly;
+  flex-direction: column;
+}
+
+.input_container {
+  display: flex;
+
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.input_container label {
+  flex: 1;
+  
+  margin-right: 10px; /* Add some spacing between label and input */
+}
+
+.input_container input,
+.input_container select,
+.input_container textarea {
+  text-align: center;
+  margin-right: 20px;
+   width: 100%;
+  flex: 2; /* Make inputs take up more space */
+}
+.input_container select{
+  height: 40px;
+  font-weight: bold;
+
+}
+
+
+.modal_content h2 {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-top: 3px solid #7c5bd8;
+  padding: 10px;
+  margin-bottom: 20px; /* Adjust margin */
+  background-color: black;
+  color: #b195fb;
+}
+
+.close_button {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  cursor: pointer;
+  font-size: 30px;
+  color: #ffffff;
+}
+.create button{
+  padding:15px  20px;
+  margin: 20px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-radius: 8px;
+  background-color: black;
+  color: #b195fb;
+}
+
+
+/* Task Card */
+
+/* taskCard.css */
+.status-pillar{
+  /* display: flex; */
+  width: auto;
+  /* overflow: hidden; */
+  height: auto;
+  /* height: 200px !; */
+  /* gap: 2px; */
+  justify-content: space-evenly;
+  /* flex-direction: column; */
+}
+.task-cards{
+  
+      /* margin: 0 30px; */
+    width: 100%;
+    display: flex;
+    gap: 20px;
+    width: 100vw;
+    flex-direction: column;
+    height: auto;
+ 
+    /* background-color: #9b82e0; */
+    color: black !important;
+    justify-content: start;
+
+}
+.task-card {
+  
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  width: 14vw;
+  height: auto;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 0 17px;
+  margin-bottom: 20px;
+}
+
+.task-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: black !important;
+}
+.task-card span{
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.task-details {
+  display: flex;
+  width: 24vw;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+/* Status Card */
+/* statusCard.css */
+.status-cont{
+  display: flex;
+  background-color: transparent;
+}
+.status-card {
+  /* background-color: #f0f0f0;  */
+  /* border: 1px solid #ccc; */
+  border-radius: 5px;
+  /* padding: 20px; */
+  /* height: 90vh; */
+  /* padding: 20px -50px; */
+  display: flex;
+  width: 100vw;
+  /* height: auto; */
+  margin: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-card h3 {
+  font-weight: bold;
+  width: 100%;
+  
+  
+  text-align: center;
+  color: #ffffff;
+}
+.status-pillar h2{
+ text-transform: capitalize;
+ text-align: center;
+ margin-bottom: 30px;
+}
+span{
+  margin: 10px 20px;
+}
+
+#complete{
+  background-color: green;
+  
+}
+#progress{
+  background-color: orange;
+}
+#pending{
+  background-color: gray;
+}
+#dep{
+  background-color: rgb(44, 44, 118);
+}
+#del{
+  background-color: palevioletred;
+}
+.task_button{
+  display: flex;
+  width: 90%;
+  /* background-color: #7c5bd8; */
+  justify-content: space-evenly;
+  margin-top: 20px;
+}
+.task_button button{
+  border-radius: 8px;
+ padding: 10px 20px ;
+ outline: none;
+ cursor: pointer;
+ border: none;
+ 
+}
+.edit-task{
+  color: #f0f0f0;
+  background-color: rgb(58, 108, 225);
+}
+.delete-task{
+  background-color: rgb(228, 67, 67);
+  color: #f0f0f0;
+}
+.delete-task:hover{
+  background-color: rgb(164, 39, 39);
+}
+.edit-task:hover{
+  background-color: rgb(19, 81, 225);
+}
