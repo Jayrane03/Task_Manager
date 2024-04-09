@@ -7,7 +7,7 @@ function verifyToken(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized', message: 'Token not provided' });
   }
 
-  jwt.verify(token, 'your_secret_key', (err, decoded) => {
+  jwt.verify(token, 'secret23', (err, decoded) => {
     if (err) {
       return res.status(401).json({ error: 'Unauthorized', message: 'Invalid token' });
     }
