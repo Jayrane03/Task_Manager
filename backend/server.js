@@ -14,7 +14,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Connect with the database
 connectDB();
-app.use(cors());
+app.use(cors({
+    // origin: allowedOrigins,
+    // origin: 'http://localhost:5173,
+    origin: 'https://task-manager-t993.onrender.com',
+    methods: ['GET', 'POST', 'PUT'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
 app.use("/task", taskRouter); // Mounting task routes
 
 // User registration route

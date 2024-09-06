@@ -58,9 +58,7 @@ const TaskCard = ({ task, fetchTasks }) => {
       } else {
         throw new Error('Failed to update task');
       }
-    } catch (error) {
-      console.error('Error updating task:', error.message);
-    }
+      } catch (error) {     }
   };
 
   const handleChange = (event) => {

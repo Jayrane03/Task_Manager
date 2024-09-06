@@ -47,7 +47,7 @@ const getAllTasks = async (req, res) => {
         return res.status(400).send({ error: 'Invalid updates!' });
     }
 
-    try {    console.log('PUT request payload:', req.body);;
+    try {    console.log('PUT request payload:', req.body);
         const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
         if (!task) {
             return res.status(404).send("Task not found");
