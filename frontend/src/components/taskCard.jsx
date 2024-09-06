@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../Styles/component.css';
-import { BASE_URL } from '../Services/service';
+import { BASE_URL } from '../Services/service.js';
 
 const TaskCard = ({ task, fetchTasks }) => {
   const [updateModel, setUpdateModel] = useState(false);
