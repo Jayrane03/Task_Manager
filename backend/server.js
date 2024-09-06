@@ -1,27 +1,35 @@
 require('dotenv').config();
 const express = require("express");
 const connectDB = require("./utils/db");
-const taskRouter = require("./routes/taskRoute"); // Corrected import path
+const taskRouter = require("./routes/taskRoute");
 const app = express();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const UserModel = require("./models/login_model");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-app.use(express.json());
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Connect with the database
 connectDB();
+
+// CORS Configuration
+const allowedOrigins = process.env.CORS_ORIGINS.split(',');
 app.use(cors({
-    // origin: allowedOrigins,
-    // origin: 'http://localhost:5173,
-    origin: 'https://task-manager-t993.onrender.com',
-    methods: ['GET', 'POST', 'PUT'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-  }));
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT'],
+  allowedHeaders: ['Content-Type', 'Authorization','x-access-token']
+}));
+
 app.use("/task", taskRouter); // Mounting task routes
 
 // User registration route
@@ -43,7 +51,7 @@ app.post('/', async (req, res) => {
         const token = jwt.sign({
             userId: newUser._id,
             email: newUser.email,
-        }, 'secret23', { expiresIn: '2h' }); // Set token expiration to 2 hours
+        }, 'secret23', { expiresIn: '2h' });
 
         res.json({ status: "OK", user: newUser, token }); // Include token in the response
     } catch (error) {
@@ -102,7 +110,7 @@ app.get('/api/home', async (req, res) => {
 });
 
 // Start server
-const PORT  = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
 });
