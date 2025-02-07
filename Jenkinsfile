@@ -2,10 +2,11 @@ pipeline {
     agent any
     stages {
         stage('Clone Repository') {
-            steps {
-                git 'https://github.com/Jayrane03/Task_Manager'
-            }
-        }
+    steps {
+        deleteDir()  // Clean workspace before fetching
+        git branch: 'main', url: 'https://github.com/Jayrane03/Task_Manager', credentialsId: 'your-credential-id'
+    }
+}
         stage('Build') {
             steps {
                 bat 'mvn clean package'  // For Java
