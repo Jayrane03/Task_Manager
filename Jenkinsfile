@@ -4,7 +4,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 deleteDir()  // Clean workspace before fetching
-                git branch: 'main', url: 'https://github.com/Jayrane03/Task_Manager', credentialsId: 'your-credential-id'
+                git branch: 'main', url: 'https://github.com/Jayrane03/Task_Manager', credentialsId: 'Jayrane03'
             }
         }
         stage('Install Dependencies') {
