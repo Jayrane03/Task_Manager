@@ -42,23 +42,20 @@ pipeline {
     }
 }
 
-       stage('Deploy') {
+      stage('Deploy') {
     steps {
         echo "Deploying the application with username: ${params.USERNAME}"
 
-        // Start the backend server
         dir('backend') {
-            bat 'start npm run start' // 'start' keeps it running in a new window
+            bat 'start npm run start' // Starts the backend server
         }
 
-        // Serve the frontend (if needed)
         dir('frontend') {
-            bat 'npm run serve' // Change this if you use Vite or another tool
+            bat 'npm run preview' // Use preview instead of serve
         }
-
-        echo "Application should be running now."
     }
 }
+
 
     }
 }
