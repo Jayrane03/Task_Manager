@@ -42,11 +42,23 @@ pipeline {
     }
 }
 
-        stage('Deploy') {
-            steps {
-                echo "Deploying the application with username: ${params.USERNAME}"
-                // Add deployment commands if needed.
-            }
+       stage('Deploy') {
+    steps {
+        echo "Deploying the application with username: ${params.USERNAME}"
+
+        // Start the backend server
+        dir('backend') {
+            bat 'start npm run start' // 'start' keeps it running in a new window
         }
+
+        // Serve the frontend (if needed)
+        dir('frontend') {
+            bat 'npm run serve' // Change this if you use Vite or another tool
+        }
+
+        echo "Application should be running now."
+    }
+}
+
     }
 }
