@@ -2,115 +2,122 @@ require('dotenv').config();
 const express = require("express");
 const connectDB = require("./utils/db");
 const taskRouter = require("./routes/taskRoute");
-const app = express();
+const UserModel = require("./models/login_model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const UserModel = require("./models/login_model");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
+const app = express();
+
+// Middleware
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Connect with the database
+// Connect to MongoDB
 connectDB();
 
 // CORS Configuration
-const allowedOrigins = process.env.CORS_ORIGINS.split(',');
+const allowedOrigins = [
+  'http://localhost:5173',                            // Local dev
+  'https://task-manager-t993.onrender.com' // Production
+];
+
 app.use(cors({
-  origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin) || !origin) {
+  origin: function (origin, callback) {
+    // Allow no origin (like Postman or curl) or whitelisted origins
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('CORS not allowed from this origin: ' + origin));
     }
   },
-  methods: ['GET', 'POST', 'PUT'],
-  allowedHeaders: ['Content-Type', 'Authorization','x-access-token']
+  credentials: true,
 }));
 
-app.use("/task", taskRouter); // Mounting task routes
+// Mount Routes
+app.use("/task", taskRouter);
 
-// User registration route
+// User Registration
 app.post('/', async (req, res) => {
-    try {
-        const existingUser = await UserModel.findOne({ email: req.body.email });
-        if (existingUser) {
-            return res.status(400).json({ status: "Error", message: "Email already exists" });
-        }
+  try {
+    const { name, email, password } = req.body;
 
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        const newUser = await UserModel.create({
-            name: req.body.name,
-            email: req.body.email,
-            password: hashedPassword,
-        });
-
-        // Generate JWT token for the newly registered user
-        const token = jwt.sign({
-            userId: newUser._id,
-            email: newUser.email,
-        }, 'secret23', { expiresIn: '2h' });
-
-        res.json({ status: "OK", user: newUser, token }); // Include token in the response
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: "Error", message: "Internal Server Error" });
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ status: "Error", message: "Email already exists" });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await UserModel.create({ name, email, password: hashedPassword });
+
+    const token = jwt.sign(
+      { userId: newUser._id, email: newUser.email },
+      process.env.JWT_SECRET || 'secret23',
+      { expiresIn: '2h' }
+    );
+
+    res.json({ status: "OK", user: newUser, token });
+  } catch (error) {
+    console.error("Registration Error:", error);
+    res.status(500).json({ status: "Error", message: "Internal Server Error" });
+  }
 });
 
-// User login route
+// User Login
 app.post('/api/login', async (req, res) => {
-    try {
-        const user = await UserModel.findOne({ email: req.body.email });
-        if (!user) {
-            return res.status(400).json({ status: "Error", message: "User not found" });
-        }
+  try {
+    const { email, password } = req.body;
 
-        const passwordMatch = await bcrypt.compare(req.body.password, user.password);
-        if (!passwordMatch) {
-            return res.status(400).json({ status: "Error", message: "Invalid password" });
-        }
-
-        const token = jwt.sign({
-            userId: user._id,
-            email: user.email,
-        }, 'secret23', { expiresIn: '2h' });
-
-        // Return user data along with the token
-        res.json({ status: "OK", user, token });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: "Error", message: "Internal Server Error" });
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ status: "Error", message: "User not found" });
     }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(400).json({ status: "Error", message: "Invalid password" });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET || 'secret23',
+      { expiresIn: '2h' }
+    );
+
+    res.json({ status: "OK", user, token });
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ status: "Error", message: "Internal Server Error" });
+  }
 });
 
-// User home route
+// User Home/Profile Route (Protected)
 app.get('/api/home', async (req, res) => {
-    const token = req.headers['x-access-token'];
-    try {
-        if (!token) {
-            return res.status(401).json({ status: 'Error', message: 'Token not provided' });
-        }
-        
-        const decoded = jwt.verify(token, 'secret23');
-        const email = decoded.email;
-        const user = await UserModel.findOne({ email });
-        
-        if (!user) {
-            return res.status(404).json({ status: 'Error', message: 'User not found' });
-        }
+  const token = req.headers['x-access-token'];
 
-        res.json({ status: 'OK', user });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: 'Error', message: error.message || 'Internal Server Error' });
+  if (!token) {
+    return res.status(401).json({ status: 'Error', message: 'Token not provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret23');
+    const user = await UserModel.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res.status(404).json({ status: 'Error', message: 'User not found' });
     }
+
+    res.json({ status: 'OK', user });
+  } catch (error) {
+    console.error("Auth Error:", error);
+    res.status(401).json({ status: 'Error', message: 'Invalid or expired token' });
+  }
 });
 
-// Start server
+// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`);
+  console.log(`✅ Server is running on port ${PORT}`);
 });

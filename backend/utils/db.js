@@ -4,7 +4,7 @@ const mongoose = require("mongoose")
 const connectDB = async ()=>{
 
     try{
-        await   mongoose.connect("mongodb+srv://Jayrane:jayrane@taskcluster.ej74chc.mongodb.net/user-task?retryWrites=true&w=majority&appName=TaskCluster");
+        await   mongoose.connect(process.env.MONGO);
         console.log("Db connected successfully")
 
     }
