@@ -1,5 +1,4 @@
-// src/components/MyTask.jsx
-import  { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -10,9 +9,9 @@ import {
   Grid,
 } from '@mui/material';
 import BadgeIcon from '@mui/icons-material/Badge';
-import { fetchUserData } from '../Services/userService'; // Import fetchUserData
-import { fetchAssignedTasks } from '../Services/userService'; // Import fetchAssignedTasks (or from taskService)
-import TaskCard from './TaskCard'; // You'll likely need a TaskCard component to display individual tasks
+import { fetchUserData } from '../Services/userService.js';
+import { fetchAssignedTasks } from '../Services/userService.js';
+import TaskCard from './TaskCard.jsx'; // <<<-- Corrected import path and added .jsx extension
 
 const MyTask = () => {
   const [loggedInUser, setLoggedInUser] = useState(null);
@@ -34,7 +33,7 @@ const MyTask = () => {
           severity: 'error',
           message: `Error loading user data: ${error.message}`,
         });
-        setLoggedInUser(null); // Ensure user is null on error
+        setLoggedInUser(null);
       } finally {
         setIsLoadingUser(false);
       }
@@ -48,8 +47,6 @@ const MyTask = () => {
       if (loggedInUser && loggedInUser._id) {
         setIsLoadingTasks(true);
         try {
-          // You might want to filter tasks on the backend by assignee ID
-          // The endpoint should be something like /task/assigned/:userId
           const tasks = await fetchAssignedTasks(loggedInUser._id);
           setAssignedTasks(tasks);
         } catch (error) {
@@ -58,17 +55,17 @@ const MyTask = () => {
             severity: 'error',
             message: `Error fetching assigned tasks: ${error.message}`,
           });
-          setAssignedTasks([]); // Ensure tasks array is empty on error
+          setAssignedTasks([]);
         } finally {
           setIsLoadingTasks(false);
         }
       }
     };
 
-    if (loggedInUser && !isLoadingUser) { // Only fetch tasks once user data is loaded
+    if (loggedInUser && !isLoadingUser) {
       getAssignedTasks();
     }
-  }, [loggedInUser, isLoadingUser]); // Re-run when loggedInUser or isLoadingUser changes
+  }, [loggedInUser, isLoadingUser]);
 
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
@@ -120,12 +117,11 @@ const MyTask = () => {
 
   return (
     <Box sx={{ p: 4, backgroundColor: '#121212', minHeight: '100vh', width:"90vw", color: 'white' }}>
-   <Grid>
-       <Paper elevation={6} sx={{ p: 3, backgroundColor: '#1e1e2f', borderRadius: 4  ,width:"50vw", height:"auto" }}>
+      <Paper elevation={6} sx={{ p: 3, backgroundColor: '#1e1e2f', borderRadius: 4, width:"auto", height:"auto" }}> {/* Adjusted width/height for Paper */}
         <Typography variant="h4" fontWeight="bold" gutterBottom color="#b195fb">
           🎯 {loggedInUser.name}&apos;s Assigned Tasks
           <br />
-          <BadgeIcon /> Role: {loggedInUser.role}
+          <BadgeIcon sx={{ verticalAlign: 'middle', mr: 1 }} /> Role: {loggedInUser.role}
         </Typography>
 
         <Typography variant="h6" sx={{ mb: 3, color: '#ccc' }}>
@@ -144,15 +140,13 @@ const MyTask = () => {
         ) : (
           <Grid container spacing={3}>
             {assignedTasks.map((task) => (
-              <Grid item xs={12} lg={6} md={4} key={task._id}>
-                {/* You'll need a TaskCard component to render each task */}
-                <TaskCard task={task} />
+              <Grid item xs={12} sm={6} md={4} key={task._id}> {/* Adjusted grid sizes for better responsiveness */}
+                <TaskCard task={task} loggedInUserRole={loggedInUser.role} /> {/* Pass loggedInUserRole */}
               </Grid>
             ))}
           </Grid>
         )}
       </Paper>
-   </Grid>
 
       {/* Alerts */}
       <Snackbar

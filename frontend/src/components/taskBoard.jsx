@@ -528,7 +528,8 @@ const TaskBoard = () => {
         </Snackbar>
 
         {/* Status Columns */}
-        <StatusCard tasks={groupedTasks} fetchTasks={fetchTasks} />
+        
+    <StatusCard tasks={groupedTasks} fetchTasks={fetchTasks} loggedInUserRole={loggedInUser.role} /> {/* <<<-- PASS loggedInUserRole */}
       </Paper>
     </Box>
   );

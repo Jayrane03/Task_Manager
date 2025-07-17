@@ -1,125 +1,168 @@
-// src/components/TaskCard.jsx
-
+import React from 'react';
 import {
   Card,
   CardContent,
   Typography,
   Chip,
   Box,
+  Avatar,
+  CardActions,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
-import PropTypes from 'prop-types';
-// Optional: If you want to add prop-types for validation (recommended)
-// import PropTypes from 'prop-types';
+import {
+  Edit as EditIcon, // Make sure EditIcon is imported if you want to use it in the card
+  Person as PersonIcon,
+  Schedule as ScheduleIcon,
+  Assignment as AssignmentIcon,
+} from '@mui/icons-material';
+import PropTypes from 'prop-types'; // Keep prop-types here as it's for TaskCard
 
-const TaskCard = ({ task }) => {
-  // Define statusColors object here or import it if shared across components.
-  // This is the fix for 'statusColors is not defined' when setting borderLeft.
-  const statusColors = {
-    'Pending': '#ffa726',    // Orange
-    'In Progress': '#29b6f6', // Light Blue
-    'Completed': '#66bb6a',  // Green
-    'Deployed': '#9c27b0',   // Purple
-    'Deferred': '#ef5350',   // Red
-  };
+// Define colors here or import from a constants file
+const statusColors = {
+  Pending: '#ff9800',
+  'In Progress': '#2196f3',
+  Completed: '#4caf50',
+  Deployed: '#9c27b0',
+  Deferred: '#f44336',
+};
 
-  // Helper to get color for Material-UI Chip component's 'color' prop
-  const getStatusChipColor = (status) => {
-    switch (status) {
-      case 'Pending': return 'info';
-      case 'In Progress': return 'primary';
-      case 'Completed': return 'success';
-      case 'Deployed': return 'secondary';
-      case 'Deferred': return 'warning';
-      default: return 'default';
-    }
-  };
+const priorityColors = {
+  P0: '#f44336',
+  P1: '#ff9800',
+  P2: '#4caf50',
+};
 
-  const getPriorityChipColor = (priority) => {
-    switch (priority) {
-      case 'P0': return 'error';
-      case 'P1': return 'warning';
-      case 'P2': return 'info';
-      default: return 'default';
-    }
-  };
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
 
+// TaskCard component
+const TaskCard = ({ task, onEditTask, loggedInUserRole }) => { // Added onEditTask and loggedInUserRole props
   return (
     <Card
       sx={{
-        backgroundColor: '#2a2a3e', // Slightly lighter dark than the background
+        backgroundColor: '#2d2d3f',
         color: 'white',
-        mb: 2, // Add margin-bottom for spacing between cards, as seen in your image hint
-        borderRadius: 2,
-        boxShadow: 3,
-        height: '25vh',
-        width:"30vw", // Ensure cards in a grid have same height
-        display: 'flex',
-        flexDirection: 'column',
-        // FIX FOR BORDERLEFT:
-        // Use template literal correctly and provide a fallback color
-        borderLeft: `4px solid ${statusColors[task.status] || '#ccc'}`,
-        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out', // Smooth transition for hover
+        mb: 2,
+        borderLeft: `4px solid ${statusColors[task.status] || '#ccc'}`, // Added fallback color
         '&:hover': {
-          boxShadow: '0 8px 16px rgba(177, 149, 251, 0.3)', // Your desired hover shadow
-          transform: 'translateY(-2px)', // Slightly lift the card on hover
+          boxShadow: '0 8px 16px rgba(177, 149, 251, 0.3)',
+          transform: 'translateY(-2px)',
         },
+        transition: 'all 0.3s ease',
       }}
     >
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="h6" fontWeight="bold" sx={{ color: '#b195fb' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold', color: '#b195fb' }}>
             {task.title}
           </Typography>
-          {task.priority && (
-            <Chip
-              label={task.priority}
-              color={getPriorityChipColor(task.priority)}
-              size="small"
-              sx={{ fontWeight: 'bold' }}
-            />
-          )}
-        </Box>
-        <Typography variant="body2" color="#ccc" sx={{ mb: 1 }}>
-          {task.description}
-        </Typography>
-        {task.team && (
-          <Typography variant="caption" color="#aaa" sx={{ mb: 0.5 }}>
-            Team: {task.team}
-          </Typography>
-        )}
-        {/* Assumes task.assignee is an object with name/email/id or just an ID */}
-        {task.assignee && (
-          <Typography variant="caption" color="#aaa" sx={{ mb: 0.5 }}>
-            Assigned To: {task.assignee.name || task.assignee.email || task.assignee._id}
-          </Typography>
-        )}
-        <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {task.status && (
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {task.priority && (
+              <Chip
+                label={task.priority}
+                size="small"
+                sx={{
+                  backgroundColor: priorityColors[task.priority] || '#666', // Added fallback color
+                  color: 'white',
+                  fontWeight: 'bold',
+                }}
+              />
+            )}
             <Chip
               label={task.status}
-              color={getStatusChipColor(task.status)}
               size="small"
-              sx={{ fontWeight: 'bold' }}
+              sx={{
+                backgroundColor: statusColors[task.status] || '#666', // Added fallback color
+                color: 'white',
+              }}
             />
+          </Box>
+        </Box>
+
+        <Typography variant="body2" sx={{ color: '#ccc', mb: 2 }}>
+          {task.description}
+        </Typography>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {task.team && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <AssignmentIcon sx={{ fontSize: 16, color: '#b195fb' }} />
+              <Typography variant="body2" sx={{ color: '#ccc' }}>
+                Team: {task.team}
+              </Typography>
+            </Box>
           )}
-          <Typography variant="caption" color="#888">
-            Created: {new Date(task.createdAt).toLocaleDateString()}
-          </Typography>
+
+          {task.assignee && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <PersonIcon sx={{ fontSize: 16, color: '#b195fb' }} />
+              <Typography variant="body2" sx={{ color: '#ccc' }}>
+                Assigned to: {task.assignee.name || task.assignee.email || task.assignee._id} {/* Added _id fallback */}
+              </Typography>
+            </Box>
+          )}
+
+          {task.user && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Avatar sx={{ width: 16, height: 16, fontSize: 10, bgcolor: '#b195fb' }}>
+                {task.user.name?.charAt(0).toUpperCase() || '?'} {/* Added '?' fallback for charAt(0) */}
+              </Avatar>
+              <Typography variant="body2" sx={{ color: '#ccc' }}>
+                Created by: {task.user.name || task.user.email || task.user._id} {/* Added _id fallback */}
+              </Typography>
+            </Box>
+          )}
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <ScheduleIcon sx={{ fontSize: 16, color: '#b195fb' }} />
+            <Typography variant="body2" sx={{ color: '#ccc' }}>
+              {formatDate(task.createdAt)}
+            </Typography>
+          </Box>
         </Box>
       </CardContent>
+
+      {/* Only show edit button if onEditTask is provided and user is admin */}
+      {onEditTask && loggedInUserRole === 'admin' && (
+        <CardActions sx={{ justifyContent: 'flex-end', pt: 0 }}>
+          <Tooltip title="Update Status">
+            <IconButton
+              onClick={() => onEditTask(task)}
+              sx={{
+                color: '#b195fb',
+                '&:hover': { backgroundColor: 'rgba(177, 149, 251, 0.1)' },
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+        </CardActions>
+      )}
     </Card>
   );
 };
 
-// Optional: Prop validation for better development experience
-
+// Prop types for TaskCard
 TaskCard.propTypes = {
   task: PropTypes.shape({
     _id: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     team: PropTypes.string,
-    user: PropTypes.string.isRequired, // ID of the user who created the task
+    user: PropTypes.oneOfType([
+      PropTypes.string, // if user is just an ID
+      PropTypes.shape({ // if user is a populated object
+        _id: PropTypes.string.isRequired,
+        name: PropTypes.string,
+        email: PropTypes.string,
+      }),
+    ]).isRequired,
     assignee: PropTypes.oneOfType([
       PropTypes.string, // If assignee is just the ID
       PropTypes.shape({ // If assignee is a populated user object
@@ -130,10 +173,11 @@ TaskCard.propTypes = {
       }),
     ]).isRequired,
     priority: PropTypes.string,
-    status: PropTypes.string.isRequired,
+    status: PropTypes.string, // Status might not be required if it has a default
     createdAt: PropTypes.string.isRequired,
   }).isRequired,
+  onEditTask: PropTypes.func, // onEditTask is optional
+  loggedInUserRole: PropTypes.string, // loggedInUserRole is optional
 };
-
 
 export default TaskCard;

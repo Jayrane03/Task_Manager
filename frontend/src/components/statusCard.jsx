@@ -1,16 +1,12 @@
-// src/components/StatusCard.jsx
-import  { useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Grid,
   Paper,
-  Typography,
-  Card,
-  CardContent,
-  CardActions,
   Button,
-  Chip,
-  Avatar,
+  Typography,
+  // Removed Card, CardContent, CardActions, Button, Chip, Avatar, Tooltip
+  // because they are now used inside the standalone TaskCard
   Dialog,
   DialogTitle,
   DialogContent,
@@ -18,23 +14,25 @@ import {
   Select,
   MenuItem,
   FormControl,
+  Chip,
   InputLabel,
-  IconButton,
-  Tooltip,
+ // Keep Tooltip for general use if any
 } from '@mui/material';
 import {
-  Edit as EditIcon,
-  Person as PersonIcon,
-  Schedule as ScheduleIcon,
-  Assignment as AssignmentIcon,
+  // Removed EditIcon, PersonIcon, ScheduleIcon, AssignmentIcon
+  // because they are used inside the standalone TaskCard
 } from '@mui/icons-material';
 import { BASE_URL } from '../Services/service';
 import PropTypes from 'prop-types';
-const StatusCard = ({ tasks, fetchTasks }) => {
+import TaskCard from './TaskCard.jsx'; // <<<-- IMPORT THE STANDALONE TaskCard
+
+const StatusCard = ({ tasks, fetchTasks, loggedInUserRole }) => { // Added loggedInUserRole prop
   const [selectedTask, setSelectedTask] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState('');
 
+  // Define colors here or import from a constants file, if they are not used in TaskCard already
+  // (Note: If TaskCard is the only place using these, you can remove them from here)
   const statusColors = {
     Pending: '#ff9800',
     'In Progress': '#2196f3',
@@ -43,11 +41,8 @@ const StatusCard = ({ tasks, fetchTasks }) => {
     Deferred: '#f44336',
   };
 
-  const priorityColors = {
-    P0: '#f44336',
-    P1: '#ff9800',
-    P2: '#4caf50',
-  };
+  // priorityColors are only used in TaskCard, so they should be defined there or in a central config.
+  // const priorityColors = { /* ... */ };
 
   const handleEditTask = (task) => {
     setSelectedTask(task);
@@ -70,10 +65,14 @@ const StatusCard = ({ tasks, fetchTasks }) => {
         setIsEditDialogOpen(false);
         setSelectedTask(null);
       } else {
-        throw new Error('Failed to update task');
+        // Handle error from backend
+        const errorData = await response.json();
+        console.error('Failed to update task:', errorData.message);
+        // You might want to show an alert here
       }
     } catch (error) {
       console.error('Error updating task:', error);
+      // You might want to show an alert here
     }
   };
 
@@ -81,114 +80,8 @@ const StatusCard = ({ tasks, fetchTasks }) => {
     return ['Pending', 'In Progress', 'Completed', 'Deployed', 'Deferred'];
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
-
-  const TaskCard = ({ task }) => (
-    <Card
-      sx={{
-        backgroundColor: '#2d2d3f',
-        color: 'white',
-        mb: 2,
-        borderLeft: `4px solid ${statusColors[task.status]}`,
-        '&:hover': {
-          boxShadow: '0 8px 16px rgba(177, 149, 251, 0.3)',
-          transform: 'translateY(-2px)',
-        },
-        transition: 'all 0.3s ease',
-      }}
-    >
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-          <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold', color: '#b195fb' }}>
-            {task.title}
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            {task.priority && (
-              <Chip
-                label={task.priority}
-                size="small"
-                sx={{
-                  backgroundColor: priorityColors[task.priority],
-                  color: 'white',
-                  fontWeight: 'bold',
-                }}
-              />
-            )}
-            <Chip
-              label={task.status}
-              size="small"
-              sx={{
-                backgroundColor: statusColors[task.status],
-                color: 'white',
-              }}
-            />
-          </Box>
-        </Box>
-
-        <Typography variant="body2" sx={{ color: '#ccc', mb: 2 }}>
-          {task.description}
-        </Typography>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          {task.team && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <AssignmentIcon sx={{ fontSize: 16, color: '#b195fb' }} />
-              <Typography variant="body2" sx={{ color: '#ccc' }}>
-                Team: {task.team}
-              </Typography>
-            </Box>
-          )}
-
-          {task.assignee && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <PersonIcon sx={{ fontSize: 16, color: '#b195fb' }} />
-              <Typography variant="body2" sx={{ color: '#ccc' }}>
-                Assigned to: {task.assignee.name || task.assignee.email}
-              </Typography>
-            </Box>
-          )}
-
-          {task.user && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Avatar sx={{ width: 16, height: 16, fontSize: 10, bgcolor: '#b195fb' }}>
-                {task.user.name?.charAt(0).toUpperCase()}
-              </Avatar>
-              <Typography variant="body2" sx={{ color: '#ccc' }}>
-                Created by: {task.user.name || task.user.email}
-              </Typography>
-            </Box>
-          )}
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <ScheduleIcon sx={{ fontSize: 16, color: '#b195fb' }} />
-            <Typography variant="body2" sx={{ color: '#ccc' }}>
-              {formatDate(task.createdAt)}
-            </Typography>
-          </Box>
-        </Box>
-      </CardContent>
-
-      <CardActions sx={{ justifyContent: 'flex-end', pt: 0 }}>
-        <Tooltip title="Update Status">
-          <IconButton
-            onClick={() => handleEditTask(task)}
-            sx={{
-              color: '#b195fb',
-              '&:hover': { backgroundColor: 'rgba(177, 149, 251, 0.1)' },
-            }}
-          >
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
-      </CardActions>
-    </Card>
-  );
+  // formatDate is now in TaskCard, no need here unless StatusCard also directly uses it.
+  // const formatDate = (dateString) => { /* ... */ };
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -203,6 +96,8 @@ const StatusCard = ({ tasks, fetchTasks }) => {
                 borderRadius: 2,
                 border: `2px solid ${statusColors[status]}`,
                 minHeight: '500px',
+                display: 'flex', // Use flex for column content
+                flexDirection: 'column', // Align content in column
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -227,11 +122,17 @@ const StatusCard = ({ tasks, fetchTasks }) => {
                 />
               </Box>
 
-              <Box sx={{ maxHeight: '450px', overflowY: 'auto' }}>
-                {tasks[status]?.map((task) => (
-                  <TaskCard key={task._id} task={task} />
-                ))}
-                {(!tasks[status] || tasks[status].length === 0) && (
+              <Box sx={{ maxHeight: '450px', overflowY: 'auto', flexGrow: 1, pr: 1 }}> {/* Added pr for scrollbar space */}
+                {tasks[status]?.length > 0 ? (
+                  tasks[status].map((task) => (
+                    <TaskCard
+                      key={task._id}
+                      task={task}
+                      onEditTask={handleEditTask} // Pass the edit handler
+                      loggedInUserRole={loggedInUserRole} // Pass user role for conditional rendering
+                    />
+                  ))
+                ) : (
                   <Typography
                     variant="body2"
                     sx={{
@@ -264,12 +165,33 @@ const StatusCard = ({ tasks, fetchTasks }) => {
             Task: <strong>{selectedTask?.title}</strong>
           </Typography>
           <FormControl fullWidth>
-            <InputLabel style={{ color: '#ccc' }}>Status</InputLabel>
+            <InputLabel
+              htmlFor="edit-status-select"
+              style={{ color: '#ccc' }}
+              shrink={true} // Fixed: Ensure label is always visible
+            >
+              Status
+            </InputLabel>
             <Select
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
               label="Status"
-              sx={{ color: '#fff' }}
+              inputProps={{ id: 'edit-status-select' }}
+              sx={{
+                color: '#fff',
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#b195fb' },
+                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#9c7cf5' },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#b195fb' },
+                '& .MuiSvgIcon-root': { color: '#fff' },
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    backgroundColor: '#2a2a3e',
+                    color: '#fff',
+                  },
+                },
+              }}
             >
               <MenuItem value="Pending">Pending</MenuItem>
               <MenuItem value="In Progress">In Progress</MenuItem>
@@ -295,26 +217,12 @@ const StatusCard = ({ tasks, fetchTasks }) => {
     </Box>
   );
 };
+
+// Prop types for StatusCard
 StatusCard.propTypes = {
-  task: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-    team: PropTypes.string,
-    user: PropTypes.string.isRequired, // ID of the user who created the task
-    assignee: PropTypes.oneOfType([
-      PropTypes.string, // If assignee is just the ID
-      PropTypes.shape({ // If assignee is a populated user object
-        _id: PropTypes.string.isRequired,
-        name: PropTypes.string,
-        email: PropTypes.string,
-        role: PropTypes.string,
-      }),
-    ]).isRequired,
-    priority: PropTypes.string,
-    status: PropTypes.string,
-    createdAt: PropTypes.string.isRequired,
-  }).isRequired,
+  tasks: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.object)).isRequired, // tasks is an object with arrays of task objects
+  fetchTasks: PropTypes.func.isRequired,
+  loggedInUserRole: PropTypes.string, // Add prop type for loggedInUserRole
 };
 
 export default StatusCard;
