@@ -7,7 +7,7 @@ import {
   Divider,
 } from '@mui/material';
 import GroupIcon from '@mui/icons-material/Group';
-import TeamCard from './TeamCard'; // Import the TeamCard component
+import TeamCard from './teamCard'; // Import the TeamCard component
 
 import { companyTeams } from '../Services/teams_service';// Mock Data for teams
 

@@ -22,7 +22,7 @@ import {
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import AssignmentIcon from '@mui/icons-material/Assignment'; // New: Icon for dialog title
 import { BASE_URL } from '../Services/service';
-import StatusCard from './StatusCard';
+import StatusCard from './statusCard';
 import { fetchUserData } from '../Services/userService';
 import BadgeIcon from '@mui/icons-material/Badge';
 import { companyTeams } from '../Services/teams_service'; // Make sure this path is correct
