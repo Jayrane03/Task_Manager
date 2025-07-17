@@ -5,7 +5,10 @@ import {
 } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 
-export default function Dashboard({ userData }) {
+// eslint-disable-next-line react/prop-types
+export default function Dashboard({ userData }) 
+   
+{
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
