@@ -7,6 +7,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const userRoutes = require('./routes/adminRoutes');
+
+ // ✅ This should match your route
 
 const app = express();
 
@@ -20,13 +23,12 @@ connectDB();
 
 // CORS Configuration
 const allowedOrigins = [
-  'http://localhost:5173',                            // Local dev
-  'https://task-manager-t993.onrender.com' // Production
+  'http://localhost:5173',
+  'https://task-manager-t993.onrender.com',
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow no origin (like Postman or curl) or whitelisted origins
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -36,52 +38,63 @@ app.use(cors({
   credentials: true,
 }));
 
-// Mount Routes
+// Routes
 app.use("/task", taskRouter);
+app.use("/users",userRoutes)
 
-// User Registration
-app.post('/', async (req, res) => {
+
+// Register Route
+app.post('/register', async (req, res) => {
+  const { name, email, password, role, adminKey } = req.body;
+
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  if (role === 'admin' && adminKey !== process.env.ADMIN_KEY) {
+    return res.status(403).json({ message: 'Invalid Admin Key' });
+  }
+
   try {
-    const { name, email, password } = req.body;
-
-    const existingUser = await UserModel.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ status: "Error", message: "Email already exists" });
+    const userExists = await UserModel.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'Email already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await UserModel.create({ name, email, password: hashedPassword });
+    const newUser = await UserModel.create({ name, email, password: hashedPassword, role });
 
     const token = jwt.sign(
-      { userId: newUser._id, email: newUser.email },
+      { userId: newUser._id, email: newUser.email, role: newUser.role },
       process.env.JWT_SECRET || 'secret23',
       { expiresIn: '2h' }
     );
 
-    res.json({ status: "OK", user: newUser, token });
-  } catch (error) {
-    console.error("Registration Error:", error);
-    res.status(500).json({ status: "Error", message: "Internal Server Error" });
+    res.status(201).json({ user: newUser, token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
+
 // User Login
-app.post('/api/login', async (req, res) => {
+app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await UserModel.findOne({ email });
     if (!user) {
-      return res.status(400).json({ status: "Error", message: "User not found" });
+      return res.status(404).json({ status: "Error", message: "User not found" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.status(400).json({ status: "Error", message: "Invalid password" });
+      return res.status(401).json({ status: "Error", message: "Invalid credentials" });
     }
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
+      { userId: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'secret23',
       { expiresIn: '2h' }
     );
@@ -93,17 +106,16 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// User Home/Profile Route (Protected)
+// User Profile / Home (Protected)
 app.get('/api/home', async (req, res) => {
   const token = req.headers['x-access-token'];
-
   if (!token) {
     return res.status(401).json({ status: 'Error', message: 'Token not provided' });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret23');
-    const user = await UserModel.findOne({ email: decoded.email });
+    const user = await UserModel.findOne({ email: decoded.email }).select("-password");
 
     if (!user) {
       return res.status(404).json({ status: 'Error', message: 'User not found' });

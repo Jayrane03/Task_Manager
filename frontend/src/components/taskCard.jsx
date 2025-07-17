@@ -1,165 +1,139 @@
-import React, { useState } from 'react';
-import '../Styles/component.css';
-import { BASE_URL } from '../Services/service.js';
+// src/components/TaskCard.jsx
 
-const TaskCard = ({ task, fetchTasks }) => {
-  const [updateModel, setUpdateModel] = useState(false);
-  const [taskData, setTaskData] = useState({
-    title: task.title,
-    description: task.description,
-    team: task.team,
-    assignee: task.assignee,
-    priority: task.priority,
-    status: task.status,
-  });
+import {
+  Card,
+  CardContent,
+  Typography,
+  Chip,
+  Box,
+} from '@mui/material';
+import PropTypes from 'prop-types';
+// Optional: If you want to add prop-types for validation (recommended)
+// import PropTypes from 'prop-types';
 
-  const handleUpdateModel = () => {
-    setUpdateModel(true);
+const TaskCard = ({ task }) => {
+  // Define statusColors object here or import it if shared across components.
+  // This is the fix for 'statusColors is not defined' when setting borderLeft.
+  const statusColors = {
+    'Pending': '#ffa726',    // Orange
+    'In Progress': '#29b6f6', // Light Blue
+    'Completed': '#66bb6a',  // Green
+    'Deployed': '#9c27b0',   // Purple
+    'Deferred': '#ef5350',   // Red
   };
 
-  const handleCloseModal = () => {
-    setUpdateModel(false);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      if (window.confirm(`Are you sure you want to delete the task assigned to ${task.assignee.toUpperCase()}?`)) {
-        await fetch(`${BASE_URL}/task/delete/${id}`, {
-          method: 'DELETE',
-        });
-        fetchTasks(prevTasks => prevTasks.filter(t => t._id !== id));
-        console.log('Task deleted successfully');
-      } else {
-        console.error('Failed to delete task:');
-      }
-    } catch (error) {
-      console.error('Error deleting task:', error.message);
-    }
-  };
-
-  const handleUpdate = async (event, id) => {
-    event.preventDefault();
-  
-    try {
-      const res = await fetch(`${BASE_URL}/task/update/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(taskData),
-      });
-  
-      if (res.status === 200) {
-        const updatedTask = { ...task, ...taskData };
-        setUpdateModel(false);
-        setTaskData(updatedTask);
-        fetchTasks(prevTasks => prevTasks.filter(t => t._id !== id));
-        console.log('Task updated successfully');
-      } else {
-        throw new Error('Failed to update task');
-      }
-      } catch (error) {     }
-  };
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setTaskData({
-      ...taskData,
-      [name]: value,
-    });
-  
-    if (name === 'status') {
-      const updatedTask = { ...taskData, status: value };
-      fetchTasks(updatedTask);
-    }
-  };
-
-  const getStatusClassName = (status) => {
+  // Helper to get color for Material-UI Chip component's 'color' prop
+  const getStatusChipColor = (status) => {
     switch (status) {
-      case 'Pending':
-        return 'pending';
-      case 'In Progress':
-        return 'in-progress';
-      case 'Completed':
-        return 'completed';
-      case 'Deployed':
-        return 'deployed';
-      case 'Deferred':
-        return 'deferred';
-      default:
-        return '';
+      case 'Pending': return 'info';
+      case 'In Progress': return 'primary';
+      case 'Completed': return 'success';
+      case 'Deployed': return 'secondary';
+      case 'Deferred': return 'warning';
+      default: return 'default';
     }
   };
 
+  const getPriorityChipColor = (priority) => {
+    switch (priority) {
+      case 'P0': return 'error';
+      case 'P1': return 'warning';
+      case 'P2': return 'info';
+      default: return 'default';
+    }
+  };
 
   return (
-    <div className="task-cards" key={task._id}>
-      <div className={`task-card ${getStatusClassName(taskData.status)}`}>
-        <h3>{taskData.title}</h3>
-        <span>Description: {taskData.description}</span>
-        <div className="task-details">
-          <span className="status">Status: {taskData.status}</span>
-          <span className="assignee">Assignee: {taskData.assignee}</span>
-          <span className="priority">Priority: {taskData.priority}</span>
-          <span className="team">Team: {taskData.team}</span>
-        </div>
-        <div className="task_button">
-          <button className='edit-task' onClick={handleUpdateModel}>Edit</button>
-          <button className='delete-task' onClick={() => handleDelete(task._id)}>Delete</button>
-        </div>
-        {updateModel && (
-          <div className="modal_overlay">
-            <div className="modal_content">
-              <span className="close_button" onClick={handleCloseModal}>&times;</span>
-              <h2>Edit Task</h2>
-              <form onSubmit={(event) => handleUpdate(event, task._id)}>
-                <div className="input_flex">
-                  <div className="input_container">
-                    <label htmlFor="title">Title</label>
-                    <input type="text" name="title" id="title" value={taskData.title} onChange={handleChange} />
-                  </div>
-                  <div className="input_container">
-                    <label htmlFor="desc">Description</label>
-                    <textarea name="description" id="desc" rows="6" cols="50" value={taskData.description} onChange={handleChange} />
-                  </div>
-                  <div className="input_container">
-                    <label htmlFor="team">Team</label>
-                    <input type="text" name="team" id="team" value={taskData.team} onChange={handleChange} />
-                  </div>
-                  <div className="input_container">
-                    <label htmlFor="assignees">Assignees</label>
-                    <input type="text" name="assignee" id="assignee" value={taskData.assignee} onChange={handleChange} />
-                  </div>
-                  <div className="input_container">
-                    <label htmlFor="priority">Priority</label>
-                    <select id="priority" name="priority" value={taskData.priority} onChange={handleChange}>
-                      <option value="">Select Priority</option>
-                      <option value="P0">P0</option>
-                      <option value="P1">P1</option>
-                      <option value="P2">P2</option>
-                    </select>
-                  </div>
-                  <div className="input_container">
-                    <label htmlFor="status">Status</label>
-                    <select id="status" name="status" value={taskData.status} onChange={handleChange}>
-                      <option value="Pending">Pending</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Completed">Completed</option>
-                      <option value="Deployed">Deployed</option>
-                      <option value="Deferred">Deferred</option>
-                    </select>
-                  </div>
-                  <div className="create">
-                    <button type="submit">Edit Task</button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
+    <Card
+      sx={{
+        backgroundColor: '#2a2a3e', // Slightly lighter dark than the background
+        color: 'white',
+        mb: 2, // Add margin-bottom for spacing between cards, as seen in your image hint
+        borderRadius: 2,
+        boxShadow: 3,
+        height: '25vh',
+        width:"30vw", // Ensure cards in a grid have same height
+        display: 'flex',
+        flexDirection: 'column',
+        // FIX FOR BORDERLEFT:
+        // Use template literal correctly and provide a fallback color
+        borderLeft: `4px solid ${statusColors[task.status] || '#ccc'}`,
+        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out', // Smooth transition for hover
+        '&:hover': {
+          boxShadow: '0 8px 16px rgba(177, 149, 251, 0.3)', // Your desired hover shadow
+          transform: 'translateY(-2px)', // Slightly lift the card on hover
+        },
+      }}
+    >
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+          <Typography variant="h6" fontWeight="bold" sx={{ color: '#b195fb' }}>
+            {task.title}
+          </Typography>
+          {task.priority && (
+            <Chip
+              label={task.priority}
+              color={getPriorityChipColor(task.priority)}
+              size="small"
+              sx={{ fontWeight: 'bold' }}
+            />
+          )}
+        </Box>
+        <Typography variant="body2" color="#ccc" sx={{ mb: 1 }}>
+          {task.description}
+        </Typography>
+        {task.team && (
+          <Typography variant="caption" color="#aaa" sx={{ mb: 0.5 }}>
+            Team: {task.team}
+          </Typography>
         )}
-      </div>
-    </div>
+        {/* Assumes task.assignee is an object with name/email/id or just an ID */}
+        {task.assignee && (
+          <Typography variant="caption" color="#aaa" sx={{ mb: 0.5 }}>
+            Assigned To: {task.assignee.name || task.assignee.email || task.assignee._id}
+          </Typography>
+        )}
+        <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {task.status && (
+            <Chip
+              label={task.status}
+              color={getStatusChipColor(task.status)}
+              size="small"
+              sx={{ fontWeight: 'bold' }}
+            />
+          )}
+          <Typography variant="caption" color="#888">
+            Created: {new Date(task.createdAt).toLocaleDateString()}
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
   );
 };
+
+// Optional: Prop validation for better development experience
+
+TaskCard.propTypes = {
+  task: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    team: PropTypes.string,
+    user: PropTypes.string.isRequired, // ID of the user who created the task
+    assignee: PropTypes.oneOfType([
+      PropTypes.string, // If assignee is just the ID
+      PropTypes.shape({ // If assignee is a populated user object
+        _id: PropTypes.string.isRequired,
+        name: PropTypes.string,
+        email: PropTypes.string,
+        role: PropTypes.string,
+      }),
+    ]).isRequired,
+    priority: PropTypes.string,
+    status: PropTypes.string.isRequired,
+    createdAt: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
 
 export default TaskCard;

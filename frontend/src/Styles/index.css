@@ -1,0 +1,24 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+.css-1ar0ue8 {
+  
+    flex-grow: 1;
+    padding:0 !important;
+
+}
+.css-zj8zjf{
+  background-color: transparent;
+  
+}
+.css-wsyskt {
+    background-color: #121212;
+    /* min-height: 100%; */
+    color: white;
+    width: 83vw;
+    height: 1100vh !important;
+}
+.css-1dwzl3x-MuiPaper-root{
+  background-color: transparent !important;
+}

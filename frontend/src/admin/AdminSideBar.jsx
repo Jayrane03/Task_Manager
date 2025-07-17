@@ -14,9 +14,9 @@ import {
   Typography,
   Avatar,
   Stack,
+  CircularProgress,
 } from '@mui/material';
-import Badge from '@mui/material/Badge';
-import BadgeIcon from '@mui/icons-material/Badge';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -26,18 +26,15 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import TaskBoard from '../components/taskBoard';
 import { fetchUserData } from '../Services/userService'; // Import the service function
-import Team from './Team';
-import MyTask from './MyTask';
-import AssignTask from '../admin/AssignTask';
+
 const drawerWidth = 270;
 
 const NotificationsComponent = () => <h2 style={{ color: '#151A2D' }}>Notifications</h2>;
-// const TeamsComponent = () => <h2 style={{ color: '#151A2D' }}>Team Management</h2>;
+const TeamsComponent = () => <h2 style={{ color: '#151A2D' }}>Team Management</h2>;
 const SettingsComponent = () => <h2 style={{ color: '#151A2D' }}>Settings</h2>;
+const MyTasksComponent = () => <h2 style={{ color: '#151A2D' }}>My Tasks</h2>;
 
-// const TeamsComponent = <Team></Team>
-
-export default function Sidebar() {
+export default function AdminSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loggedInUser, setLoggedInUser] = useState(null);
@@ -90,87 +87,59 @@ export default function Sidebar() {
         <Divider sx={{ borderColor: '#b195fb' }} />
 
         {/* Nav Items */}
-        
-     <List>
-  <ListItem disablePadding>
-    <ListItemButton onClick={() => setActiveTab("dashboard")}>
-      <ListItemIcon sx={{ color: '#b195fb' }}><DashboardIcon /></ListItemIcon>
-      <ListItemText primary="Dashboard" />
-    </ListItemButton>
-  </ListItem>
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setActiveTab("dashboard")}>
+              <ListItemIcon sx={{ color: '#b195fb' }}><DashboardIcon /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
 
- {loggedInUser?.role === "admin" ? (
-  // Show Assign Task only for admin
-  <ListItem disablePadding>
-    <ListItemButton onClick={() => setActiveTab("assignTask")}>
-      <ListItemIcon sx={{ color: '#b195fb' }}><AssignmentIcon /></ListItemIcon>
-      <ListItemText primary="Assigned Task" />
-    </ListItemButton>
-  </ListItem>
-) : (
-  // Show My Tasks for all non-admin users
-  <ListItem disablePadding>
-    <ListItemButton onClick={() => setActiveTab("mytasks")}>
-      <ListItemIcon sx={{ color: '#b195fb' }}><AssignmentIcon /></ListItemIcon>
-      <ListItemText primary="My Tasks" />
-    </ListItemButton>
-  </ListItem>
-)}
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setActiveTab("mytasks")}>
+              <ListItemIcon sx={{ color: '#b195fb' }}><AssignmentIcon /></ListItemIcon>
+              <ListItemText primary="My Tasks" />
+            </ListItemButton>
+          </ListItem>
 
-  {loggedInUser?.role === 'admin' && (
-    <>
-      <ListItem disablePadding>
-        <ListItemButton onClick={() => setActiveTab("teams")}>
-          <ListItemIcon sx={{ color: '#b195fb' }}><GroupIcon /></ListItemIcon>
-          <ListItemText primary="Teams" />
-        </ListItemButton>
-      </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setActiveTab("teams")}>
+              <ListItemIcon sx={{ color: '#b195fb' }}><GroupIcon /></ListItemIcon>
+              <ListItemText primary="Teams" />
+            </ListItemButton>
+          </ListItem>
 
-      <ListItem disablePadding>
-        <ListItemButton onClick={() => setActiveTab("employees")}>
-          <ListItemIcon sx={{ color: '#b195fb' }}><BadgeIcon /></ListItemIcon>
-          <ListItemText primary="Employees" />
-        </ListItemButton>
-      </ListItem>
-    </>
-  )}
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setActiveTab("notifications")}>
+              <ListItemIcon sx={{ color: '#b195fb' }}><NotificationsIcon /></ListItemIcon>
+              <ListItemText primary="Notifications" />
+            </ListItemButton>
+          </ListItem>
 
-  <ListItem disablePadding>
-    <ListItemButton onClick={() => setActiveTab("notifications")}>
-      <ListItemIcon sx={{ color: '#b195fb' }}><NotificationsIcon /></ListItemIcon>
-      <ListItemText primary="Notifications" />
-    </ListItemButton>
-  </ListItem>
-
-  <ListItem disablePadding>
-    <ListItemButton onClick={() => setActiveTab("settings")}>
-      <ListItemIcon sx={{ color: '#b195fb' }}><SettingsIcon /></ListItemIcon>
-      <ListItemText primary="Settings" />
-    </ListItemButton>
-  </ListItem>
-</List>
-
-
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setActiveTab("settings")}>
+              <ListItemIcon sx={{ color: '#b195fb' }}><AdminPanelSettingsIcon /></ListItemIcon>
+              <ListItemText primary="Settings" />
+            </ListItemButton>
+          </ListItem>
+        </List>
       </Box>
 
       {/* Bottom: Avatar + Logout */}
-      <Box display="flex">
+      <Box>
         <Divider sx={{ borderColor: '#b195fb' }} />
         <List>
           <ListItem disablePadding>
             <ListItemButton onClick={handleLogout}>
-              <ListItemIcon sx={{ color: '#FF6666' , marginLeft:"20px"}}><LogoutIcon /></ListItemIcon>
-              <ListItemText primary="Sign Out" sx={{ color: '#FF6666'}} />
+              <ListItemIcon sx={{ color: '#FF6666' }}><LogoutIcon /></ListItemIcon>
+              <ListItemText primary="Sign Out" sx={{ color: '#FF6666' }} />
             </ListItemButton>
           </ListItem>
         </List>
         <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
-         <Badge badgeContent={loggedInUser?.role.toUpperCase()} color="primary" sx={{position:"absolute" , zIndex:1000}}>
-           <Avatar sx={{ bgcolor: '#b195fb', color: '#151A2D', fontWeight: 'bold' , marginLeft:"20px"  }}>
+          <Avatar sx={{ bgcolor: '#b195fb', color: '#151A2D', fontWeight: 'bold' }}>
             {userInitial}
           </Avatar>
-         </Badge>
-         
         </Box>
       </Box>
     </Box>
@@ -224,18 +193,17 @@ export default function Sidebar() {
       {/* Main Content - Conditionally render based on user data loading */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { sm: `${drawerWidth}px` } }}>
         {isLoadingUser ? (
-          <Typography variant="h5" color="text.secondary">Loading user data...</Typography>
+            <CircularProgress></CircularProgress>
         ) : !loggedInUser ? (
           <Typography variant="h5" color="error">Failed to load user data. Please log in again.</Typography>
         ) : (
           <>
             {/* TaskBoard no longer needs userData prop, it fetches its own */}
             {activeTab === "dashboard" && <TaskBoard />} 
-            {activeTab === "mytasks" && <MyTask />}
-            {activeTab === "teams" && <Team />}
+            {activeTab === "mytasks" && <MyTasksComponent />}
+            {activeTab === "teams" && <TeamsComponent />}
             {activeTab === "notifications" && <NotificationsComponent />}
             {activeTab === "settings" && <SettingsComponent />}
-            {activeTab === "assignTask" && <AssignTask />}
           </>
         )}
       </Box>

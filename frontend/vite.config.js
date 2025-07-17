@@ -1,27 +1,30 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react-swc'
 
-// https://vitejs.dev/config/
+
+// Get __dirname equivalent in ESM
+
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  
-  build: {
-    outDir: 'dist',
+  resolve: {
+
   },
-  
   server: {
     proxy: {
       '/api': {
-        // target: 'http://localhost:5001', // Uncomment for local development
-        target: 'https://task-manager-t993.onrender.com', // Backend server URL for production
+        // target: 'http://localhost:5001',
+        target: 'https://task-manager-t993.onrender.com',
         changeOrigin: true,
         secure: false,
       },
     },
   },
-
-  // Move this to the root configuration level
-  define: {
-    'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
+  build: {
+    outDir: 'dist',
   },
-}));
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(
+      mode === 'production' ? 'production' : 'development'
+    ),
+  },
+}))

@@ -1,0 +1,830 @@
+import React, { useState , useEffect } from 'react';
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Toolbar,
+  Box,
+  Divider,
+  Typography,
+  Avatar,
+  Stack,
+} from '@mui/material';
+
+import MenuIcon from '@mui/icons-material/Menu';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import GroupIcon from '@mui/icons-material/Group';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
+import TaskBoard from './taskBoard';
+
+const drawerWidth = 270;
+
+const NotificationsComponent = () => <h2 style={{ color: '#151A2D' }}>Notifications</h2>;
+const TeamsComponent = () => <h2 style={{ color: '#151A2D' }}>Team Management</h2>;
+const SettingsComponent = () => <h2 style={{ color: '#151A2D' }}>Settings</h2>;
+const MyTasksComponent = () => <h2 style={{ color: '#151A2D' }}>My Tasks</h2>;
+
+export default function Sidebar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
+const [loggedInUser, setLoggedInUser] = useState(null);
+
+useEffect(() => {
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Token not found');
+
+      const res = await fetch(`${BASE_URL}/api/home`, {
+        headers: {
+          'x-access-token': token,
+        },
+      });
+
+      if (!res.ok) throw new Error('Failed to fetch user');
+      const data = await res.json();
+      setLoggedInUser(data.user);
+    } catch (err) {
+      console.error('Error fetching user:', err.message);
+      localStorage.removeItem('token');
+      window.location.href = "/login";
+    }
+  };
+
+  fetchUserData();
+}, []);
+
+  const toggleDrawer = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = "/login";
+  };
+
+  const userInitial = loggedInUser?.name?.[0]?.toUpperCase() || 'U';
+
+  const drawerContent = (
+    <Box
+      sx={{
+        width: drawerWidth,
+        height: '100%',
+        backgroundColor: '#151A2D',
+        color: '#b195fb',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between'
+      }}
+    >
+      <Box>
+        {/* Logo + App Name */}
+        <Toolbar sx={{ px: 2, py: 3, justifyContent: 'center' }}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Avatar sx={{ bgcolor: '#b195fb' }}>🗂️</Avatar>
+            <Typography variant="h6" sx={{ color: '#b195fb' }}>
+              TaskFlow
+            </Typography>
+          </Stack>
+        </Toolbar>
+
+        <Divider sx={{ borderColor: '#b195fb' }} />
+
+        {/* Nav Items */}
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setActiveTab("dashboard")}>
+              <ListItemIcon sx={{ color: '#b195fb' }}><DashboardIcon /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setActiveTab("mytasks")}>
+              <ListItemIcon sx={{ color: '#b195fb' }}><AssignmentIcon /></ListItemIcon>
+              <ListItemText primary="My Tasks" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setActiveTab("teams")}>
+              <ListItemIcon sx={{ color: '#b195fb' }}><GroupIcon /></ListItemIcon>
+              <ListItemText primary="Teams" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setActiveTab("notifications")}>
+              <ListItemIcon sx={{ color: '#b195fb' }}><NotificationsIcon /></ListItemIcon>
+              <ListItemText primary="Notifications" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setActiveTab("settings")}>
+              <ListItemIcon sx={{ color: '#b195fb' }}><SettingsIcon /></ListItemIcon>
+              <ListItemText primary="Settings" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Box>
+
+      {/* Bottom: Avatar + Logout */}
+      <Box>
+        <Divider sx={{ borderColor: '#b195fb' }} />
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout}>
+              <ListItemIcon sx={{ color: '#FF6666' }}><LogoutIcon /></ListItemIcon>
+              <ListItemText primary="Sign Out" sx={{ color: '#FF6666' }} />
+            </ListItemButton>
+          </ListItem>
+        </List>
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+          <Avatar sx={{ bgcolor: '#b195fb', color: '#151A2D', fontWeight: 'bold' }}>
+            {userInitial}
+          </Avatar>
+        </Box>
+      </Box>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      {/* Mobile Menu Button */}
+      <Box sx={{ display: { xs: 'block', sm: 'none' }, p: 1 }}>
+        <IconButton onClick={toggleDrawer} sx={{ color: '#151A2D' }}>
+          <MenuIcon />
+        </IconButton>
+      </Box>
+
+      {/* Drawer for mobile */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={toggleDrawer}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: 'block', sm: 'none' },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: drawerWidth,
+            backgroundColor: '#151A2D',
+            color: '#EEF2FF'
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      {/* Drawer for desktop */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: 'none', sm: 'block' },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: drawerWidth,
+            backgroundColor: '#151A2D',
+            color: '#EEF2FF'
+          },
+        }}
+        open
+      >
+        {drawerContent}
+      </Drawer>
+
+      {/* Main Content */}
+      <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { sm: `${drawerWidth}px` } }}>
+        {activeTab === "dashboard" && <TaskBoard userData={loggedInUser} />}
+        {activeTab === "mytasks" && <MyTasksComponent />}
+        {activeTab === "teams" && <TeamsComponent />}
+        {activeTab === "notifications" && <NotificationsComponent />}
+        {activeTab === "settings" && <SettingsComponent />}
+      </Box>
+    </Box>
+  );
+}
+import React from 'react';
+import {
+  Grid,
+  Paper,
+  Box,
+  Typography,
+  Chip,
+  Divider,
+  Fade,
+} from '@mui/material';
+import { Assignment, HourglassTop, CheckCircle, RocketLaunch, PauseCircle } from '@mui/icons-material';
+import TaskCard from './taskCard';
+
+const statusMeta = {
+  'Pending': { color: '#b0bec5', icon: <HourglassTop /> },
+  'In Progress': { color: '#ffe082', icon: <Assignment /> },
+  'Completed': { color: '#81c784', icon: <CheckCircle /> },
+  'Deployed': { color: '#64b5f6', icon: <RocketLaunch /> },
+  'Deferred': { color: '#f48fb1', icon: <PauseCircle /> },
+};
+
+const StatusCard = ({ tasks, fetchTasks }) => {
+  return (
+    <Grid container spacing={3} sx={{ padding: 2 }}>
+      {Object.entries(tasks).map(([status, statusTasks]) => {
+        const { color, icon } = statusMeta[status] || {};
+        return (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={status}>
+            <Fade in timeout={500}>
+              <Paper
+                elevation={6}
+                sx={{
+                  borderRadius: 3,
+                  padding: 2,
+                  backgroundColor: '#fafafa',
+                  transition: '0.3s',
+                  '&:hover': {
+                    transform: 'scale(1.03)',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                  },
+                }}
+              >
+                {/* Status Header */}
+                <Box
+                  sx={{
+                    backgroundColor: color || '#eeeeee',
+                    borderRadius: 2,
+                    padding: 1.5,
+                    textAlign: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 1,
+                    mb: 2,
+                  }}
+                >
+                  {icon}
+                  <Typography variant="h6" fontWeight="bold">
+                    {status}
+                  </Typography>
+                  <Chip
+                    label={statusTasks.length}
+                    color="default"
+                    size="small"
+                    sx={{
+                      ml: 1,
+                      backgroundColor: '#ffffffaa',
+                      fontWeight: 600,
+                    }}
+                  />
+                </Box>
+
+                <Divider sx={{ mb: 2 }} />
+
+                {/* Task List */}
+                <Box sx={{ maxHeight: '65vh', overflowY: 'auto', pr: 1 }}>
+                  {statusTasks.map((task, index) => (
+                    <Box key={index} mb={2}>
+                      <TaskCard task={task} fetchTasks={fetchTasks} />
+                    </Box>
+                  ))}
+                </Box>
+              </Paper>
+            </Fade>
+          </Grid>
+        );
+      })}
+    </Grid>
+  );
+};
+
+export default StatusCard;
+import { useState, useEffect } from 'react';
+import {
+  Box,
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  InputLabel,
+  FormControl,
+  Snackbar,
+  Alert,
+  Typography,
+  Grid,
+  Paper,
+} from '@mui/material';
+import { BASE_URL } from '../Services/service';
+import StatusCard from './statusCard';
+
+const TaskBoard = ({ userData }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [alert, setAlert] = useState({ open: false, severity: 'success', message: '' });
+  const [userD, setUserD] = useState(userData || null);
+
+  const [taskData, setTaskData] = useState({
+    title: '',
+    description: '',
+    team: '',
+    user: logge?._id || '',
+    assignee: '',
+    priority: '',
+    status: 'Pending',
+  });
+
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  useEffect(() => {
+    if (userData?._id) {
+      setUserD(userData);
+      setTaskData((prev) => ({ ...prev, user: userData._id }));
+    }
+  }, [userData]);
+
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/task`);
+      if (!response.ok) throw new Error('Failed to fetch tasks');
+      const data = await response.json();
+      setTasks(data);
+    } catch (error) {
+      setAlert({ open: true, severity: 'error', message: error.message });
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setTaskData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${BASE_URL}/task/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(taskData),
+      });
+
+      if (response.ok) {
+        setAlert({ open: true, severity: 'success', message: 'Task created successfully' });
+        fetchTasks();
+        setIsModalOpen(false);
+        setTaskData({
+          title: '',
+          description: '',
+          team: '',
+          assignee: '',
+          priority: '',
+          user: userD._id,
+          status: 'Pending',
+        });
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create task');
+      }
+    } catch (error) {
+      setAlert({ open: true, severity: 'error', message: error.message });
+    }
+  };
+
+  const handleLogout = () => {
+    window.location.href = '/login';
+    setAlert({ open: true, severity: 'success', message: 'Logout Successfully' });
+  };
+
+  return (
+    <Box sx={{ p: 4, backgroundColor: '#121212', minHeight: '100vh', color: 'white' }}>
+      <Paper elevation={6} sx={{ p: 3, backgroundColor: '#1e1e2f', borderRadius: 4 }}>
+        <Typography variant="h4" fontWeight="bold" gutterBottom color="#b195fb">
+          🚀 Task Board
+        </Typography>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={handleLogout}
+            sx={{ borderRadius: 2, fontWeight: 'bold' }}
+          >
+            Logout
+          </Button>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: '#b195fb',
+              color: '#fff',
+              '&:hover': { backgroundColor: '#9c7cf5' },
+              borderRadius: 2,
+              fontWeight: 'bold',
+            }}
+            onClick={() => setIsModalOpen(true)}
+          >
+            + Add Task
+          </Button>
+        </Box>
+
+        {/* Task Creation Dialog */}
+        <Dialog
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          fullWidth
+          maxWidth="sm"
+          PaperProps={{ sx: { backgroundColor: '#1e1e2f', color: 'white' } }}
+        >
+          <DialogTitle>Create Task</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2} mt={1}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Title"
+                  name="title"
+                  value={taskData.title}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{ style: { color: '#fff' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Team"
+                  name="team"
+                  value={taskData.team}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{ style: { color: '#fff' } }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Description"
+                  name="description"
+                  value={taskData.description}
+                  onChange={handleChange}
+                  fullWidth
+                  multiline
+                  rows={4}
+                  variant="outlined"
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{ style: { color: '#fff' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Assignee"
+                  name="assignee"
+                  value={taskData.assignee}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{ style: { color: '#fff' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <FormControl fullWidth>
+                  <InputLabel style={{ color: '#ccc' }}>Priority</InputLabel>
+                  <Select
+                    name="priority"
+                    value={taskData.priority}
+                    onChange={handleChange}
+                    label="Priority"
+                    sx={{ color: '#fff' }}
+                  >
+                    <MenuItem value="P0">P0</MenuItem>
+                    <MenuItem value="P1">P1</MenuItem>
+                    <MenuItem value="P2">P2</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <FormControl fullWidth>
+                  <InputLabel style={{ color: '#ccc' }}>Status</InputLabel>
+                  <Select
+                    name="status"
+                    value={taskData.status}
+                    onChange={handleChange}
+                    label="Status"
+                    sx={{ color: '#fff' }}
+                  >
+                    <MenuItem value="Pending">Pending</MenuItem>
+                    <MenuItem value="In Progress">In Progress</MenuItem>
+                    <MenuItem value="Completed">Completed</MenuItem>
+                    <MenuItem value="Deployed">Deployed</MenuItem>
+                    <MenuItem value="Deferred">Deferred</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setIsModalOpen(false)} sx={{ color: '#b195fb' }}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              sx={{ backgroundColor: '#b195fb', '&:hover': { backgroundColor: '#9a7cf5' } }}
+            >
+              Create Task
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Alerts */}
+        <Snackbar
+          open={alert.open}
+          autoHideDuration={4000}
+          onClose={() => setAlert({ ...alert, open: false })}
+        >
+          <Alert
+            severity={alert.severity}
+            variant="filled"
+            onClose={() => setAlert({ ...alert, open: false })}
+            sx={{
+              backgroundColor: alert.severity === 'success' ? '#81c784' : '#e57373',
+              color: '#000',
+            }}
+          >
+            {alert.message}
+          </Alert>
+        </Snackbar>
+
+        {/* Status Columns */}
+        <StatusCard tasks={tasks} fetchTasks={fetchTasks} />
+      </Paper>
+    </Box>
+  );
+};
+
+export default TaskBoard;
+import { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Stack,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { BASE_URL } from '../Services/service.js';
+
+const TaskCard = ({ task, fetchTasks }) => {
+  const [updateModel, setUpdateModel] = useState(false);
+  const [taskData, setTaskData] = useState({
+    title: task.title,
+    description: task.description,
+    team: task.team,
+    assignee: task.assignee,
+    priority: task.priority,
+    status: task.status,
+  });
+
+  const handleDelete = async (id) => {
+    if (window.confirm(`Delete task assigned to ${task.assignee.toUpperCase()}?`)) {
+      try {
+        await fetch(`${BASE_URL}/task/delete/${id}`, { method: 'DELETE' });
+        fetchTasks(); // refresh after delete
+        console.log('Task deleted successfully');
+      } catch (error) {
+        console.error('Error deleting task:', error.message);
+      }
+    }
+  };
+
+  const handleUpdate = async (e, id) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${BASE_URL}/task/update/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(taskData),
+      });
+
+      if (res.ok) {
+        setUpdateModel(false);
+        fetchTasks(); // refresh list after update
+      } else {
+        throw new Error('Failed to update task');
+      }
+    } catch (error) {
+      console.error('Error updating task:', error.message);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setTaskData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const statusColors = {
+    'Pending': '#757575',
+    'In Progress': '#ffb74d',
+    'Completed': '#81c784',
+    'Deployed': '#64b5f6',
+    'Deferred': '#f48fb1',
+  };
+
+  return (
+    <>
+      <Card
+        sx={{
+          backgroundColor: '#1e1e2f',
+          color: 'white',
+          borderLeft: `6px solid ${statusColors[taskData.status] || '#ccc'}`,
+          borderRadius: 3,
+          mb: 2,
+          boxShadow: 5,
+          transition: '0.3s',
+          '&:hover': {
+            transform: 'scale(1.02)',
+          },
+        }}
+      >
+        <CardContent>
+          <Typography variant="h6" fontWeight="bold" gutterBottom>
+            {taskData.title}
+          </Typography>
+          <Typography variant="body2" gutterBottom>{taskData.description}</Typography>
+
+          <Grid container spacing={1} mt={1}>
+            <Grid item xs={6}>
+              <Typography variant="caption">Assignee: {taskData.assignee}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="caption">Team: {taskData.team}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="caption">Priority: {taskData.priority}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="caption">Status: {taskData.status}</Typography>
+            </Grid>
+          </Grid>
+
+          <Stack direction="row" spacing={2} mt={2}>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<EditIcon />}
+              onClick={() => setUpdateModel(true)}
+              sx={{ color: '#b195fb', borderColor: '#b195fb' }}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<DeleteIcon />}
+              color="error"
+              onClick={() => handleDelete(task._id)}
+            >
+              Delete
+            </Button>
+          </Stack>
+        </CardContent>
+      </Card>
+
+      {/* Update Dialog */}
+      <Dialog
+        open={updateModel}
+        onClose={() => setUpdateModel(false)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{ sx: { backgroundColor: '#1e1e2f', color: 'white' } }}
+      >
+        <DialogTitle>Edit Task</DialogTitle>
+        <form onSubmit={(e) => handleUpdate(e, task._id)}>
+          <DialogContent>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Title"
+                  name="title"
+                  value={taskData.title}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{ style: { color: '#fff' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Team"
+                  name="team"
+                  value={taskData.team}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{ style: { color: '#fff' } }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Description"
+                  name="description"
+                  value={taskData.description}
+                  onChange={handleChange}
+                  fullWidth
+                  multiline
+                  rows={3}
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{ style: { color: '#fff' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Assignee"
+                  name="assignee"
+                  value={taskData.assignee}
+                  onChange={handleChange}
+                  fullWidth
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{ style: { color: '#fff' } }}
+                />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <FormControl fullWidth>
+                  <InputLabel style={{ color: '#ccc' }}>Priority</InputLabel>
+                  <Select
+                    name="priority"
+                    value={taskData.priority}
+                    onChange={handleChange}
+                    label="Priority"
+                    sx={{ color: '#fff' }}
+                  >
+                    <MenuItem value="P0">P0</MenuItem>
+                    <MenuItem value="P1">P1</MenuItem>
+                    <MenuItem value="P2">P2</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <FormControl fullWidth>
+                  <InputLabel style={{ color: '#ccc' }}>Status</InputLabel>
+                  <Select
+                    name="status"
+                    value={taskData.status}
+                    onChange={handleChange}
+                    label="Status"
+                    sx={{ color: '#fff' }}
+                  >
+                    <MenuItem value="Pending">Pending</MenuItem>
+                    <MenuItem value="In Progress">In Progress</MenuItem>
+                    <MenuItem value="Completed">Completed</MenuItem>
+                    <MenuItem value="Deployed">Deployed</MenuItem>
+                    <MenuItem value="Deferred">Deferred</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setUpdateModel(false)} sx={{ color: '#b195fb' }}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ backgroundColor: '#b195fb', '&:hover': { backgroundColor: '#9a7cf5' } }}
+            >
+              Save
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    </>
+  );
+};
+
+export default TaskCard;

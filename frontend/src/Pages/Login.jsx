@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import Alert from '@mui/material/Alert';
 import loginImg from "/Images/login_1.jpg";
 import '../Styles/pages.css';
 import { BASE_URL } from '../Services/service';
+import { CircularProgress } from '@mui/material';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
-    name: '', // Add name field
+    name: '',
     email: '',
     password: ''
   });
+  const [alert, setAlert] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -21,9 +24,10 @@ const LoginForm = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-  
+    setAlert('');
+
     try {
-      const response = await fetch(`${BASE_URL}/api/login`, {
+      const response = await fetch(`${BASE_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,25 +38,18 @@ const LoginForm = () => {
           password: formData.password,
         })
       });
+
       const data = await response.json();
-  
-      if (response.ok) {
-        if (data.token) {
-          // Clear previous token (if any)
-          localStorage.removeItem('token');
+
+      if (response.ok && data.token) {
+        localStorage.setItem('token', data.token);
+        setAlert(`Welcome ${data.user.name}`);
+        setTimeout(() => {
+         
           
-          // Set new token
-          localStorage.setItem('token', data.token);
-          console.log('Token set:', data.token);
-  
-          // Alert welcome message
-          alert(`Welcome ${data.user.name}`);
-  
-          // Redirect to the "/home" route after successful login
-          window.location.href = '/home';
-        } else {
-          setError('Please check your email or password');
-        }
+            window.location.href = '/dashboard';
+         
+        }, 1500); // delay to show alert
       } else {
         setError('Please check your email or password');
       }
@@ -63,18 +60,24 @@ const LoginForm = () => {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="login">
       <div className="login-form-container">
         <div className="image">
           <img src={loginImg} alt="Background" />
         </div>
+
         <div className="form-container">
           <h2 className='form_label'>Login</h2>
-          {error && <p className="error">{error}</p>}
+
+          {/* ✅ MUI Alert for success */}
+          {alert && <Alert severity="success" sx={{ mb: 2 }}>{alert}</Alert>}
+
+          {/* ❌ MUI Alert for error */}
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
           <form onSubmit={handleLogin}>
-          
             <div className="form-group">
               <label htmlFor="email">Email:</label>
               <input
@@ -86,6 +89,7 @@ const LoginForm = () => {
                 required
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="password">Password:</label>
               <input
@@ -98,9 +102,10 @@ const LoginForm = () => {
                 required
               />
             </div>
-            <button type="submit" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
+
+          <button type="submit" disabled={loading}>
+  {loading ? <CircularProgress size={24} color="inherit" /> : 'Login'}
+</button>
             <a href="/" className='link'>Create a New Account</a>
           </form>
         </div>
