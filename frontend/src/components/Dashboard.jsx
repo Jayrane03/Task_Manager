@@ -3,7 +3,7 @@ import {
   Box,
   CssBaseline,
 } from '@mui/material';
-import Sidebar from '../components/Sidebar.jsx';
+import Sidebar from './Sidebar';
 
 // eslint-disable-next-line react/prop-types
 export default function Dashboard({ userData }) 
