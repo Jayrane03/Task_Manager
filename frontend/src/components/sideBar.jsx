@@ -26,7 +26,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import TaskBoard from './taskBoard';
 import { fetchUserData } from '../Services/userService'; // Import the service function
-import Team from './team';
+import Team from './Team';
 import MyTask from './myTask';
 import AssignTask from '../admin/AssignTask';
 const drawerWidth = 270;
