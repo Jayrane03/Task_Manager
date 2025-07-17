@@ -24,7 +24,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import TaskBoard from '../components/taskBoard';
+import TaskBoard from './taskBoard';
 import { fetchUserData } from '../Services/userService'; // Import the service function
 import Team from './Team';
 import MyTask from './MyTask';
