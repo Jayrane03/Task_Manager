@@ -11,7 +11,7 @@ import {
 import BadgeIcon from '@mui/icons-material/Badge';
 import { fetchUserData } from '../Services/userService.js';
 import { fetchAssignedTasks } from '../Services/userService.js';
-import TaskCard from '../components/TaskCard.jsx'; // <<<-- Corrected import path and added .jsx extension
+import TaskCard from './taskCard.jsx'; // <<<-- Corrected import path and added .jsx extension
 
 const MyTask = () => {
   const [loggedInUser, setLoggedInUser] = useState(null);

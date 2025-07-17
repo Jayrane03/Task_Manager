@@ -24,7 +24,7 @@ import {
 } from '@mui/icons-material';
 import { BASE_URL } from '../Services/service';
 import PropTypes from 'prop-types';
-import TaskCard from './TaskCard.jsx'; // <<<-- IMPORT THE STANDALONE TaskCard
+import TaskCard from './taskCard.jsx'; // <<<-- IMPORT THE STANDALONE TaskCard
 
 const StatusCard = ({ tasks, fetchTasks, loggedInUserRole }) => { // Added loggedInUserRole prop
   const [selectedTask, setSelectedTask] = useState(null);
