@@ -273,7 +273,7 @@ const TaskBoard = () => {
               variant="contained"
               sx={{
                 backgroundColor: '#b195fb',
-                color: '#fff',
+                color: '#121010',
                 '&:hover': { backgroundColor: '#9c7cf5' },
                 borderRadius: 2,
                 fontWeight: 'bold',

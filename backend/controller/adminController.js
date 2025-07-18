@@ -5,7 +5,7 @@ const User = require('../models/login_model'); // Adjust path as needed
 const getAllUsers = async (req, res) => {
     try {
         // Fetch all users but only return necessary fields for security
-        const users = await User.find({}, 'name email role _id')
+        const users = await User.find({}, 'name email role _id team')
             .sort({ name: 1 }); // Sort by name alphabetically
         
         res.json(users);
@@ -23,7 +23,7 @@ const getUsersByRole = async (req, res) => {
     try {
         const { role } = req.params;
         
-        const users = await User.find({ role }, 'name email role _id')
+        const users = await User.find({ role }, 'name email role _id team')
             .sort({ name: 1 });
         
         res.json(users);
@@ -42,7 +42,7 @@ const getCurrentUser = async (req, res) => {
         // Assuming you have user info from authentication middleware
         const userId = req.user?.id || req.userId; // Adjust based on your auth setup
         
-        const user = await User.findById(userId, 'name email role _id');
+        const user = await User.findById(userId, 'name email role _id team');
         
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -63,7 +63,7 @@ const getUserById = async (req, res) => {
     try {
         const { userId } = req.params;
         
-        const user = await User.findById(userId, 'name email role _id');
+        const user = await User.findById(userId, 'name email role _id team');
         
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -79,9 +79,27 @@ const getUserById = async (req, res) => {
     }
 };
 
+const assignTeam = async (req, res) => {
+  try {
+    const { team } = req.body;
+    const { id } = req.params;
+
+    const user = await User.findByIdAndUpdate(id, { team }, { new: true });
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json(user);
+  } catch (err) {
+    console.error('Assign Team Error:', err);
+    res.status(500).json({ error: 'Failed to assign team' });
+  }
+};
+
+
 module.exports = {
     getAllUsers,
     getUsersByRole,
     getCurrentUser,
-    getUserById
+    getUserById,
+    assignTeam
 };

@@ -1,5 +1,6 @@
+/* eslint-disable react/prop-types */
 // src/components/TeamCard.jsx
-import React from 'react';
+
 import {
   Card,
   CardContent,
@@ -9,7 +10,7 @@ import {
   Chip,
 } from '@mui/material';
 import { styled } from '@mui/system'; // For custom styling if needed
-
+// import theme from "@mui/themew"
 // Import relevant icons (you might need to install @mui/icons-material)
 import CodeIcon from '@mui/icons-material/Code'; // Frontend/Backend
 import CloudIcon from '@mui/icons-material/Cloud'; // Cloud
@@ -85,8 +86,6 @@ const TeamCard = ({ team }) => {
       sx={{
         backgroundColor: '#1e1e2f', // Dark background for the card
         color: 'white',
-        borderRadius: 4, // More rounded corners
-        boxShadow: '0 6px 16px rgba(245, 233, 233, 0.4)', // Deeper shadow
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -95,12 +94,12 @@ const TeamCard = ({ team }) => {
         transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
         '&:hover': {
           transform: 'translateY(-5px) scale(1.02)', // Lift and slightly enlarge on hover
-          boxShadow: '0 12px 24px rgba(0,0,0,0.6)',
+          boxShadow: '0 12px 24px #b195fb',
         },
       }}
     >
       <Box sx={{ mb: 2, mt: 1 }}>
-        <StyledAvatar bgcolor={getAvatarBgColor(team.name)}>
+        <StyledAvatar bgcolor={getAvatarBgColor(team.name)} sx={{boxShadow:"0px 0px 10px #purple"}}>
           {getTeamIcon(team.type)}
         </StyledAvatar>
       </Box>

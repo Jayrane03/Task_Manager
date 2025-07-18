@@ -19,7 +19,7 @@ const AssignTask = () => {
  useEffect(() => {
   const fetchUsers = async () => {
     try {
-     const response = await fetch(`${BASE_URL}/admin/all-users`);
+     const response = await fetch(`${BASE_URL}/users/all`);
 const data = await response.json();
 setUsers(data);  // Each user now has pendingTasks & completedTasks
 

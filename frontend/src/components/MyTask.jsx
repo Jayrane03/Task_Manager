@@ -117,7 +117,7 @@ const MyTask = () => {
 
   return (
     <Box sx={{ p: 4, backgroundColor: '#121212', minHeight: '100vh', width:"90vw", color: 'white' }}>
-      <Paper elevation={6} sx={{ p: 3, backgroundColor: '#1e1e2f', borderRadius: 4, width:"auto", height:"auto" }}> {/* Adjusted width/height for Paper */}
+      <Paper elevation={6} sx={{ p: 3, backgroundColor: '#1e1e2f', borderRadius: 4, width:"81vw", height:"auto" }}> {/* Adjusted width/height for Paper */}
         <Typography variant="h4" fontWeight="bold" gutterBottom color="#b195fb">
           🎯 {loggedInUser.name}&apos;s Assigned Tasks
           <br />

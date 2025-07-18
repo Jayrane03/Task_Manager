@@ -8,6 +8,7 @@ const {
     getAllUsers,
     getUsersByRole,
     getCurrentUser,
+    assignTeam,
     getUserById
 } = require('../controller/adminController');
 
@@ -23,5 +24,10 @@ router.get('/me', getCurrentUser);
 // Get user by ID
 router.get('/:userId', getUserById);
 
-module.exports = router;// ✅ Make sure this exists
+router.put('/assign-team/:id', assignTeam);
+
+// PUT /users/:id/assign-team
+
+
+// module.exports = router;// ✅ Make sure this exists
 module.exports = router;

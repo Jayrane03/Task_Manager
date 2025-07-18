@@ -164,42 +164,42 @@ const StatusCard = ({ tasks, fetchTasks, loggedInUserRole }) => { // Added logge
           <Typography variant="body1" sx={{ mb: 2 }}>
             Task: <strong>{selectedTask?.title}</strong>
           </Typography>
-          <FormControl fullWidth>
-            <InputLabel
-              htmlFor="edit-status-select"
-              style={{ color: '#ccc' }}
-              shrink={true} // Fixed: Ensure label is always visible
-            >
-              Status
-            </InputLabel>
-            <Select
-              value={newStatus}
-              onChange={(e) => setNewStatus(e.target.value)}
-              label="Status"
-              inputProps={{ id: 'edit-status-select' }}
-              sx={{
-                color: '#fff',
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#b195fb' },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#9c7cf5' },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#b195fb' },
-                '& .MuiSvgIcon-root': { color: '#fff' },
-              }}
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    backgroundColor: '#2a2a3e',
-                    color: '#fff',
-                  },
-                },
-              }}
-            >
-              <MenuItem value="Pending">Pending</MenuItem>
-              <MenuItem value="In Progress">In Progress</MenuItem>
-              <MenuItem value="Completed">Completed</MenuItem>
-              <MenuItem value="Deployed">Deployed</MenuItem>
-              <MenuItem value="Deferred">Deferred</MenuItem>
-            </Select>
-          </FormControl>
+        <FormControl fullWidth>
+  <InputLabel
+    id="edit-status-label"
+    sx={{ color: '#ededf0' , zIndex:"100", position:"absolute", top:"6%",left:"-4%"}}
+  >
+    Status
+  </InputLabel>
+  <Select
+    labelId="edit-status-label"
+    id="edit-status-select"
+    value={newStatus}
+    onChange={(e) => setNewStatus(e.target.value)}
+    label="Status"
+    sx={{
+      color: '#fff',
+      '& .MuiOutlinedInput-notchedOutline': { borderColor: '#b195fb' },
+      '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#9c7cf5' },
+      '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#b195fb' },
+      '& .MuiSvgIcon-root': { color: '#fff' },
+    }}
+    MenuProps={{
+      PaperProps: {
+        sx: {
+          backgroundColor: '#2a2a3e',
+          color: '#fff',
+        },
+      },
+    }}
+  >
+    <MenuItem value="Pending">Pending</MenuItem>
+    <MenuItem value="In Progress">In Progress</MenuItem>
+    <MenuItem value="Completed">Completed</MenuItem>
+    <MenuItem value="Deployed">Deployed</MenuItem>
+    <MenuItem value="Deferred">Deferred</MenuItem>
+  </Select>
+</FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsEditDialogOpen(false)} sx={{ color: '#b195fb' }}>

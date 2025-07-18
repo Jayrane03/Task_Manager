@@ -29,6 +29,7 @@ import { fetchUserData } from '../Services/userService'; // Import the service f
 import Team from './Team';
 import MyTask from './MyTask';
 import AssignTask from '../admin/AssignTask';
+import Employees from '../admin/Employees';
 const drawerWidth = 270;
 
 const NotificationsComponent = () => <h2 style={{ color: '#151A2D' }}>Notifications</h2>;
@@ -166,10 +167,11 @@ export default function Sidebar() {
         </List>
         <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
          <Badge badgeContent={loggedInUser?.role.toUpperCase()} color="primary" sx={{position:"absolute" , zIndex:1000}}>
-           <Avatar sx={{ bgcolor: '#b195fb', color: '#151A2D', fontWeight: 'bold' , marginLeft:"20px"  }}>
+           
+         </Badge>
+         <Avatar sx={{ bgcolor: '#b195fb', color: '#151A2D', fontWeight: 'bold' , marginLeft:"20px"  }}>
             {userInitial}
           </Avatar>
-         </Badge>
          
         </Box>
       </Box>
@@ -233,6 +235,7 @@ export default function Sidebar() {
             {activeTab === "dashboard" && <TaskBoard />} 
             {activeTab === "mytasks" && <MyTask />}
             {activeTab === "teams" && <Team />}
+            {activeTab === "employees" && <Employees />}
             {activeTab === "notifications" && <NotificationsComponent />}
             {activeTab === "settings" && <SettingsComponent />}
             {activeTab === "assignTask" && <AssignTask />}
