@@ -16,6 +16,7 @@ import {
   Alert,
   Typography,
   Grid,
+ Chip,
   Paper,
   CircularProgress,
 } from '@mui/material';
@@ -252,14 +253,58 @@ const TaskBoard = () => {
   }
 
   return (
-    <Box sx={{ backgroundColor: '#121212', minHeight: '100vh', color: 'white', p: 4 }}>
+    <Box sx={{ backgroundColor: '#121212', height:"auto",  width:"100vw",color: 'white', p: 4 }}>
       <Paper elevation={6} sx={{ p: 3, backgroundColor: '#1e1e2f', borderRadius: 4 }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom color="#b195fb">
-          🚀 {loggedInUser.name}&apos;s Task Board
-          <br />
-          <BadgeIcon sx={{ verticalAlign: 'middle', mr: 1 }} /> Role: {loggedInUser.role.toUpperCase()}
-        </Typography>
 
+
+<Box
+  component={Paper}
+  elevation={4}
+  sx={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    p: 3,
+    mb: 3,
+    backgroundColor: '#1e1e2f',
+    borderRadius: 3,
+    flexWrap: 'wrap',
+  }}
+>
+  <Typography
+    variant="h4"
+    fontWeight="bold"
+    gutterBottom
+    color="#b195fb"
+  >
+    🚀 {loggedInUser.name}&apos;s Task Board
+  </Typography>
+
+  <Chip
+  icon={<BadgeIcon />}
+  label={`Role: ${loggedInUser.role.toUpperCase()}`}
+  sx={{
+    position: 'absolute',
+    left: '87%',
+    padding: '10px',
+    backgroundColor:
+      loggedInUser.role === 'admin' ? '#f44336' : '#2196f3',
+    color: '#fff',
+    fontSize: '16px',
+    height: '60px',
+    boxShadow: `0px 0px 15px ${
+      loggedInUser.role === 'admin' ? '#f44336' : '#2196f3'
+    }`,
+    '& .MuiChip-icon': {
+      color: '#fff',
+      fontSize: '24px',
+    },
+  }}
+/>
+
+</Box>
+
+    
         <Typography variant="h6" sx={{ mb: 2, color: '#ccc' }}>
           {loggedInUser.role === 'admin'
             ? 'Tasks you have created'
