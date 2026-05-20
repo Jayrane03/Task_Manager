@@ -1,12 +1,58 @@
 const Task = require('../models/taskModel');
+const User = require('../models/login_model');
 
 // Controller functions for tasks
 const createTask = async (req, res) => {
     console.log('Create task request body:', req.body);
     try {
-        const task = new Task(req.body);
+        const {
+          title,
+          description,
+          project,
+          client,
+          team,
+          user,
+          assignee,
+          priority,
+          status,
+          dueDate,
+          estimatedHours,
+          tags,
+        } = req.body;
+
+        const parsedTags = Array.isArray(tags)
+          ? tags
+          : typeof tags === 'string'
+          ? tags.split(',').map((tag) => tag.trim()).filter(Boolean)
+          : [];
+
+        const task = new Task({
+          title,
+          description,
+          project: project || 'General',
+          client: client || 'Company',
+          team: team || 'General',
+          user,
+          assignee,
+          priority: priority || 'P2',
+          status: status || 'Pending',
+          dueDate: dueDate ? new Date(dueDate) : undefined,
+          estimatedHours: estimatedHours ? Number(estimatedHours) : undefined,
+          tags: parsedTags,
+        });
+
         await task.save();
-        
+
+        const notificationMessage = `New task "${task.title}" has been assigned by admin. Please review and start work${task.dueDate ? ` by ${task.dueDate.toDateString()}` : ''}.`;
+        await User.findByIdAndUpdate(task.assignee, {
+          $push: {
+            notifications: {
+              message: notificationMessage,
+              task: task._id,
+            },
+          },
+        });
+
         // Populate the created task with user details for better response
         const populatedTask = await Task.findById(task._id)
             .populate('user', 'name email role')
@@ -114,7 +160,7 @@ const getTaskById = async (req, res) => {
 
 const updateTask = async (req, res) => {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ['title', 'description', 'status', 'assignee', 'priority', 'team'];
+    const allowedUpdates = ['title', 'description', 'status', 'assignee', 'priority', 'team', 'project', 'client', 'dueDate', 'estimatedHours', 'tags'];
     const isValidOperation = updates.every(update => allowedUpdates.includes(update));
 
     if (!isValidOperation) {
@@ -126,13 +172,21 @@ const updateTask = async (req, res) => {
 
     try {
         console.log('PUT request payload:', req.body);
-        
-        // Add updatedAt timestamp
+
+        const existingTask = await Task.findById(req.params.id);
+        if (!existingTask) {
+          return res.status(404).json({ message: 'Task not found' });
+        }
+
         const updateData = {
             ...req.body,
             updatedAt: new Date()
         };
-        
+
+        if (updateData.tags && typeof updateData.tags === 'string') {
+          updateData.tags = updateData.tags.split(',').map((tag) => tag.trim()).filter(Boolean);
+        }
+
         const task = await Task.findByIdAndUpdate(
             req.params.id, 
             updateData, 
@@ -142,6 +196,18 @@ const updateTask = async (req, res) => {
          
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
+        }
+
+        if (req.body.status && req.body.status !== existingTask.status) {
+          const statusNotification = `Task "${task.title}" status has changed from ${existingTask.status} to ${task.status}.`;
+          await User.findByIdAndUpdate(task.assignee, {
+            $push: {
+              notifications: {
+                message: statusNotification,
+                task: task._id,
+              },
+            },
+          });
         }
         
         res.json(task);

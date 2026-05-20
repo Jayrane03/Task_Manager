@@ -22,7 +22,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import GroupIcon from '@mui/icons-material/Group';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import SettingsIcon from '@mui/icons-material/Settings';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import TaskBoard from './taskBoard';
 import { fetchUserData } from '../Services/userService'; // Import the service function
@@ -30,11 +30,12 @@ import Team from './Team';
 import MyTask from './MyTask';
 import AssignTask from '../admin/AssignTask';
 import Employees from '../admin/Employees';
+import Profile from './Profile';
 const drawerWidth = 270;
 
 const NotificationsComponent = () => <h2 style={{ color: '#151A2D' }}>Notifications</h2>;
 // const TeamsComponent = () => <h2 style={{ color: '#151A2D' }}>Team Management</h2>;
-const SettingsComponent = () => <h2 style={{ color: '#151A2D' }}>Settings</h2>;
+
 
 // const TeamsComponent = <Team></Team>
 
@@ -145,8 +146,8 @@ export default function Sidebar() {
 
   <ListItem disablePadding>
     <ListItemButton onClick={() => setActiveTab("settings")}>
-      <ListItemIcon sx={{ color: '#b195fb' }}><SettingsIcon /></ListItemIcon>
-      <ListItemText primary="Settings" />
+      <ListItemIcon sx={{ color: '#b195fb' }}><AccountCircleIcon  /></ListItemIcon>
+      <ListItemText primary="Profile" />
     </ListItemButton>
   </ListItem>
 </List>
@@ -237,7 +238,7 @@ export default function Sidebar() {
             {activeTab === "teams" && <Team />}
             {activeTab === "employees" && <Employees />}
             {activeTab === "notifications" && <NotificationsComponent />}
-            {activeTab === "settings" && <SettingsComponent />}
+            {activeTab === "profile" && <Profile />}
             {activeTab === "assignTask" && <AssignTask />}
           </>
         )}

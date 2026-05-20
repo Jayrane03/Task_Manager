@@ -40,11 +40,16 @@ const TaskBoard = () => {
   const [taskData, setTaskData] = useState({
     title: '',
     description: '',
-    team: '', // Initialize team to empty string
+    project: '',
+    client: '',
+    team: '',
     user: '',
     assignee: '',
     priority: '',
     status: 'Pending',
+    dueDate: '',
+    estimatedHours: '',
+    tags: '',
   });
   const [tasks, setTasks] = useState([]);
   const [groupedTasks, setGroupedTasks] = useState({});
@@ -52,6 +57,15 @@ const TaskBoard = () => {
   // const [teams , setTeams] = useState([...companyTeams]); // Remove this line if companyTeams is static
 
   const teamsAssigned = companyTeams; // Directly use the imported constant
+
+  const userNotifications = loggedInUser?.notifications || [];
+  const unreadNotifications = userNotifications.filter((note) => !note.read).length;
+  const recentNotifications = [...userNotifications]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 4);
+  const totalTasks = tasks.length;
+  const completedCount = groupedTasks['Completed']?.length || 0;
+  const overdueCount = tasks.filter((task) => task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'Completed').length;
 
   // Effect to fetch user data on component mount
   useEffect(() => {
@@ -203,11 +217,16 @@ const TaskBoard = () => {
         setTaskData({
           title: '',
           description: '',
+          project: '',
+          client: '',
           team: '', // Reset team field
           assignee: '',
           priority: '',
-          user: loggedInUser._id,
           status: 'Pending',
+          dueDate: '',
+          estimatedHours: '',
+          tags: '',
+          user: loggedInUser._id,
         });
       } else {
         const errorData = await response.json();
@@ -312,6 +331,46 @@ const TaskBoard = () => {
           }
         </Typography>
 
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 2, mb: 4 }}>
+          <Paper elevation={3} sx={{ p: 3, backgroundColor: '#171726', borderRadius: 3, minHeight: 140 }}>
+            <Typography variant="subtitle2" sx={{ color: '#8e8ead', mb: 1 }}>Company Operations</Typography>
+            <Typography variant="h5" fontWeight="bold" sx={{ color: '#fff' }}>{totalTasks}</Typography>
+            <Typography variant="body2" sx={{ color: '#b8b8d4' }}>Total active tasks across the company</Typography>
+          </Paper>
+
+          <Paper elevation={3} sx={{ p: 3, backgroundColor: '#171726', borderRadius: 3, minHeight: 140 }}>
+            <Typography variant="subtitle2" sx={{ color: '#8e8ead', mb: 1 }}>Completed</Typography>
+            <Typography variant="h5" fontWeight="bold" sx={{ color: '#8bc34a' }}>{completedCount}</Typography>
+            <Typography variant="body2" sx={{ color: '#b8b8d4' }}>Tasks completed by your teams</Typography>
+          </Paper>
+
+          <Paper elevation={3} sx={{ p: 3, backgroundColor: '#171726', borderRadius: 3, minHeight: 140 }}>
+            <Typography variant="subtitle2" sx={{ color: '#8e8ead', mb: 1 }}>Overdue</Typography>
+            <Typography variant="h5" fontWeight="bold" sx={{ color: '#f44336' }}>{overdueCount}</Typography>
+            <Typography variant="body2" sx={{ color: '#b8b8d4' }}>Tasks with a passed due date</Typography>
+          </Paper>
+
+          <Paper elevation={3} sx={{ p: 3, backgroundColor: '#171726', borderRadius: 3, minHeight: 140 }}>
+            <Typography variant="subtitle2" sx={{ color: '#8e8ead', mb: 1 }}>Notifications</Typography>
+            <Typography variant="h5" fontWeight="bold" sx={{ color: '#b195fb' }}>{unreadNotifications}</Typography>
+            <Typography variant="body2" sx={{ color: '#b8b8d4' }}>New admin messages awaiting review</Typography>
+          </Paper>
+        </Box>
+
+        <Paper elevation={3} sx={{ p: 3, backgroundColor: '#1e1e2f', borderRadius: 3, mb: 4 }}>
+          <Typography variant="h6" sx={{ color: '#fff', mb: 1 }}>Recent Notifications</Typography>
+          {recentNotifications.length > 0 ? (
+            recentNotifications.map((notification, index) => (
+              <Box key={index} sx={{ mb: 2, p: 2, backgroundColor: '#2b2b42', borderRadius: 2 }}>
+                <Typography variant="body2" sx={{ color: '#ddd' }}>{notification.message}</Typography>
+                <Typography variant="caption" sx={{ color: '#8e8ead' }}>{new Date(notification.createdAt).toLocaleString()}</Typography>
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body2" sx={{ color: '#8e8ead' }}>No notifications yet. New assignments and status updates will appear here.</Typography>
+          )}
+        </Paper>
+
         {loggedInUser?.role === "admin" && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
             <Button
@@ -322,8 +381,8 @@ const TaskBoard = () => {
                 '&:hover': { backgroundColor: '#9c7cf5' },
                 borderRadius: 2,
                 fontWeight: 'bold',
-                py: 1.5, // Increase vertical padding
-                px: 3, // Increase horizontal padding
+                py: 1.5,
+                px: 3,
                 fontSize: '1rem',
               }}
               onClick={() => setIsModalOpen(true)}
@@ -470,6 +529,84 @@ const TaskBoard = () => {
                     )}
                   </Select>
                 </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Project"
+                  name="project"
+                  value={taskData.project}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{
+                    style: { color: '#fff' },
+                    sx: { '& fieldset': { borderColor: '#b195fb' }, '&:hover fieldset': { borderColor: '#9c7cf5' }, '&.Mui-focused fieldset': { borderColor: '#b195fb' } }
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Client"
+                  name="client"
+                  value={taskData.client}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{
+                    style: { color: '#fff' },
+                    sx: { '& fieldset': { borderColor: '#b195fb' }, '&:hover fieldset': { borderColor: '#9c7cf5' }, '&.Mui-focused fieldset': { borderColor: '#b195fb' } }
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Due Date"
+                  name="dueDate"
+                  type="date"
+                  value={taskData.dueDate}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  InputLabelProps={{ style: { color: '#ccc' }, shrink: true }}
+                  InputProps={{
+                    style: { color: '#fff' },
+                    sx: { '& fieldset': { borderColor: '#b195fb' }, '&:hover fieldset': { borderColor: '#9c7cf5' }, '&.Mui-focused fieldset': { borderColor: '#b195fb' } }
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Estimated Hours"
+                  name="estimatedHours"
+                  type="number"
+                  value={taskData.estimatedHours}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{
+                    style: { color: '#fff' },
+                    sx: { '& fieldset': { borderColor: '#b195fb' }, '&:hover fieldset': { borderColor: '#9c7cf5' }, '&.Mui-focused fieldset': { borderColor: '#b195fb' } }
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Tags (comma separated)"
+                  name="tags"
+                  value={taskData.tags}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  helperText="Enter team tags like UI, API, QA"
+                  InputLabelProps={{ style: { color: '#ccc' } }}
+                  InputProps={{
+                    style: { color: '#fff' },
+                    sx: { '& fieldset': { borderColor: '#b195fb' }, '&:hover fieldset': { borderColor: '#9c7cf5' }, '&.Mui-focused fieldset': { borderColor: '#b195fb' } }
+                  }}
+                />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
