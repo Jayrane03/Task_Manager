@@ -1,5 +1,5 @@
 // src/components/taskBoard.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -35,7 +35,7 @@ const TaskBoard = () => {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [allUsers, setAllUsers] = useState([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-  const [isLoadingTeams, setIsLoadingTeams] = useState(false); // New: Loading state for teams
+  const isLoadingTeams = false; // Teams are static
 
   const [taskData, setTaskData] = useState({
     title: '',
@@ -108,7 +108,7 @@ const TaskBoard = () => {
         throw new Error('Failed to fetch users');
       }
       const users = await response.json();
-      setAllUsers(users);
+      setAllUsers(users.filter((user) => user.role !== 'admin'));
     } catch (error) {
       setAlert({
         open: true,
@@ -120,27 +120,17 @@ const TaskBoard = () => {
     }
   };
 
-  // Effect to fetch tasks when loggedInUser is available
-  useEffect(() => {
-    if (loggedInUser && loggedInUser._id) {
-      fetchTasks();
-    }
-  }, [loggedInUser]);
-
   // Function to fetch tasks - different logic for admin vs employee
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     if (!loggedInUser || !loggedInUser._id) {
       console.warn('User data is not available for fetching tasks.');
       return;
     }
 
     try {
-      let endpoint;
-      if (loggedInUser.role === 'admin') {
-        endpoint = `${BASE_URL}/task/user/${loggedInUser._id}`;
-      } else {
-        endpoint = `${BASE_URL}/task/assigned/${loggedInUser._id}`;
-      }
+      const endpoint = loggedInUser.role === 'admin'
+        ? `${BASE_URL}/task/user/${loggedInUser._id}`
+        : `${BASE_URL}/task/assigned/${loggedInUser._id}`;
 
       const response = await fetch(endpoint);
 
@@ -156,7 +146,14 @@ const TaskBoard = () => {
         message: `Error fetching tasks: ${error.message}`,
       });
     }
-  };
+  }, [loggedInUser]);
+
+  // Effect to fetch tasks when loggedInUser is available
+  useEffect(() => {
+    if (loggedInUser && loggedInUser._id) {
+      fetchTasks();
+    }
+  }, [fetchTasks, loggedInUser]);
 
   // Group tasks by status whenever the tasks state changes
   useEffect(() => {
@@ -272,7 +269,7 @@ const TaskBoard = () => {
   }
 
   return (
-    <Box sx={{ backgroundColor: '#121212', height:"auto",  width:"100vw",color: 'white', p: 4 }}>
+    <Box sx={{ backgroundColor: '#121212', minHeight: '100vh', width: '100%', color: 'white', p: 4 }}>
       <Paper elevation={6} sx={{ p: 3, backgroundColor: '#1e1e2f', borderRadius: 4 }}>
 
 
@@ -288,6 +285,7 @@ const TaskBoard = () => {
     backgroundColor: '#1e1e2f',
     borderRadius: 3,
     flexWrap: 'wrap',
+    position: 'relative',
   }}
 >
   <Typography
@@ -295,31 +293,31 @@ const TaskBoard = () => {
     fontWeight="bold"
     gutterBottom
     color="#b195fb"
+    sx={{ maxWidth: 'calc(100% - 220px)' }}
   >
     🚀 {loggedInUser.name}&apos;s Task Board
   </Typography>
 
   <Chip
-  icon={<BadgeIcon />}
-  label={`Role: ${loggedInUser.role.toUpperCase()}`}
-  sx={{
-    position: 'absolute',
-    left: '87%',
-    padding: '10px',
-    backgroundColor:
-      loggedInUser.role === 'admin' ? '#f44336' : '#2196f3',
-    color: '#fff',
-    fontSize: '16px',
-    height: '60px',
-    boxShadow: `0px 0px 15px ${
-      loggedInUser.role === 'admin' ? '#f44336' : '#2196f3'
-    }`,
-    '& .MuiChip-icon': {
+    icon={<BadgeIcon />}
+    label={`Role: ${loggedInUser.role.toUpperCase()}`}
+    sx={{
+      ml: 'auto',
+      padding: '10px',
+      backgroundColor:
+        loggedInUser.role === 'admin' ? '#f44336' : '#2196f3',
       color: '#fff',
-      fontSize: '24px',
-    },
-  }}
-/>
+      fontSize: '16px',
+      height: '60px',
+      boxShadow: `0px 0px 15px ${
+        loggedInUser.role === 'admin' ? '#f44336' : '#2196f3'
+      }`,
+      '& .MuiChip-icon': {
+        color: '#fff',
+        fontSize: '24px',
+      },
+    }}
+  />
 
 </Box>
 
@@ -397,14 +395,14 @@ const TaskBoard = () => {
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           fullWidth
-          maxWidth="sm" // Changed to 'sm' for a slightly more compact dialog
+          maxWidth="sm"
           PaperProps={{
             sx: {
-              backgroundColor: '#83838d',
+              backgroundImage: 'linear-gradient(135deg, #1c1c32 0%, #212144 60%, #2b2b53 100%)',
               color: 'white',
-              borderRadius: 4, // More rounded corners
-              boxShadow: '0 8px 20px rgba(0,0,0,0.5)', // Deeper shadow
-              border: '1px solid #b195fb', // Subtle border with theme color
+              borderRadius: 4,
+              boxShadow: '0 20px 60px rgba(25, 0, 80, 0.45)',
+              border: '1px solid rgba(177,149,251,0.45)',
             }
           }}
         >
@@ -677,15 +675,15 @@ const TaskBoard = () => {
             </Grid>
           </DialogContent>
           <DialogActions sx={{ borderTop: '1px solid rgba(255,255,255,0.1)', pt: 2, mt: 2, pr: 3, pb: 3 }}>
-            <Button onClick={() => setIsModalOpen(false)} sx={{ color: '#b195fb', '&:hover': { backgroundColor: 'rgba(177, 149, 251, 0.1)' } }}>
+            <Button onClick={() => setIsModalOpen(false)} sx={{ color: '#b195fb', '&:hover': { backgroundColor: 'rgba(177, 149, 251, 0.12)' } }}>
               Cancel
             </Button>
             <Button
               variant="contained"
               onClick={handleSubmit}
-              sx={{ backgroundColor: '#b195fb', '&:hover': { backgroundColor: '#9a7cf5' }, fontWeight: 'bold', px: 3 }}
+              sx={{ backgroundColor: '#9867e4', '&:hover': { backgroundColor: '#bc8cff' }, fontWeight: 'bold', px: 3 }}
             >
-              Create & Assign Task
+              Create Task
             </Button>
           </DialogActions>
         </Dialog>

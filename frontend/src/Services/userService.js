@@ -35,3 +35,30 @@ export const fetchUserData = async () => {
     return null;
   }
 };
+
+export const updateUserProfile = async (profileData) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Token not found');
+
+    const response = await fetch(`${BASE_URL}/api/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token,
+      },
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to update profile');
+    }
+
+    const data = await response.json();
+    return data.user;
+  } catch (err) {
+    console.error('Profile update failed:', err.message);
+    throw err;
+  }
+};

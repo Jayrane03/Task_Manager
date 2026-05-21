@@ -128,6 +128,45 @@ app.get('/api/home', async (req, res) => {
   }
 });
 
+app.put('/api/profile', async (req, res) => {
+  const token = req.headers['x-access-token'];
+  if (!token) {
+    return res.status(401).json({ status: 'Error', message: 'Token not provided' });
+  }
+
+  const { name, email, phone, title, department, team } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret23');
+    const user = await UserModel.findOne({ email: decoded.email });
+    if (!user) {
+      return res.status(404).json({ status: 'Error', message: 'User not found' });
+    }
+
+    if (email && email !== user.email) {
+      const existingUser = await UserModel.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ status: 'Error', message: 'Email is already in use by another account' });
+      }
+    }
+
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.phone = phone || user.phone;
+    user.title = title || user.title;
+    user.department = department || user.department;
+    user.team = team || user.team;
+
+    await user.save();
+
+    const updatedUser = await UserModel.findById(user._id).select('-password');
+    res.json({ status: 'OK', user: updatedUser });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(401).json({ status: 'Error', message: 'Invalid or expired token' });
+  }
+});
+
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
